@@ -39,7 +39,7 @@ export default function EditarPerfil() {
                         <button type="submit" className="bg-[#53ABB3] hover:bg-[#4da5ad] text-white p-2 text-center rounded-2xl w-10/12 md:w-1/5">
                             Concluir
                         </button>
-                        <Link href="/visualizar_perfil" className="bg-[#53ABB3] hover:bg-[#4da5ad] text-white p-2 rounded-2xl w-10/12 md:w-1/5 text-center">
+                        <Link href="/meu_perfil" className="bg-[#53ABB3] hover:bg-[#4da5ad] text-white p-2 rounded-2xl w-10/12 md:w-1/5 text-center">
                             Cancelar
                         </Link>
                     </div>
