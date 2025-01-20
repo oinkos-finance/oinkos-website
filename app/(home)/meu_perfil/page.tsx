@@ -37,6 +37,12 @@ export default function VisualizarPerfil() {
                             <input name="nome" placeholder=" ***********" className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29]" />
                         </div>
                     </div>
+                    <div className="flex flex-col md:flex-row w-full gap-6 md:gap-6 lg:gap-8 items-center justify-start ">
+                        <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2 ">
+                            <label className="text-black text-start md:text-md text-lg pl-1">Saldo:</label>
+                            <input name="nome" placeholder="R$ 0,00" className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29]" />
+                        </div>
+                    </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-3 mt-5 md:pt-6 md:gap-6 lg:gap-8 w-full justify-center items-center">
                     <Link href="/editar_perfil" className="bg-[#53ABB3] hover:bg-[#4da5ad] text-white p-2 text-center rounded-2xl w-9/12 md:w-1/4">Editar</Link>
