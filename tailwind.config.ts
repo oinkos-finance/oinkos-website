@@ -11,6 +11,8 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        variable_outgoing: "var(--variable-outgoing)",
+        fixed_outgoing: "var(--fixed-outgoing)"
       },
     },
   },

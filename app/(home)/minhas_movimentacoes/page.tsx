@@ -86,7 +86,7 @@ export default function MinhasMovimentacoes() {
                 {movements.map((movement, index) => (
                   <tr
                     key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0"
+                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
                   >
                     <td className="text-gray-800 font-bold p-4">{movement.value}</td>
                     <td className="text-gray-600 p-4">{movement.description}</td>
@@ -99,8 +99,8 @@ export default function MinhasMovimentacoes() {
                       <span
                         className={`py-1 px-3 rounded-full text-sm ${
                           movement.type === "fixo"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-yellow-100 text-yellow-600"
+                            ? "bg-fixed_outgoing text-amber-800"
+                            : "bg-variable_outgoing text-amber-800"
                         }`}
                       >
                         {movement.type}

@@ -58,7 +58,7 @@ export default function SeusGastosFixos() {
         <div>
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
-              <thead className="bg-[#D3643C]/75">
+              <thead className="bg-fixed_outgoing">
                 <tr>
                   <th className="text-black text-md p-4">Valor</th>
                   <th className="text-black text-md p-4">Descrição</th>
@@ -121,7 +121,7 @@ export default function SeusGastosFixos() {
       {isModalAddOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-[#D3643C]/75 rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
               <button
                 onClick={closeModalAdd}
@@ -188,7 +188,7 @@ export default function SeusGastosFixos() {
       {isModalEditOpen && (
         <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-[#D3643C]/75 rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Editar gasto fixo</h2>
               <button
                 onClick={closeModalEdit}
@@ -259,7 +259,7 @@ export default function SeusGastosFixos() {
       {isModalDeleteOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-[#D3643C]/75 rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Excluir gasto fixo</h2>
               <button
                 onClick={closeModalDelete}

@@ -58,7 +58,7 @@ export default function SeusGastosVariaveis() {
         <div>
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
-              <thead className="bg-[#E4B45B]">
+              <thead className="bg-variable_outgoing">
                 <tr>
                   <th className="text-black text-md p-4">Valor</th>
                   <th className="text-black text-md p-4">Descrição</th>
@@ -72,7 +72,7 @@ export default function SeusGastosVariaveis() {
                 {movements.map((movement, index) => (
                   <tr
                     key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0"
+                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
                   >
                     <td className="text-gray-800 font-bold p-4">{movement.value}</td>
                     <td className="text-gray-600 p-4">{movement.description}</td>
@@ -116,7 +116,7 @@ export default function SeusGastosVariaveis() {
       {isModalAddOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex #bg-[#E4B45B] rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
               <button
                 onClick={closeModalAdd}
@@ -183,7 +183,7 @@ export default function SeusGastosVariaveis() {
       {isModalEditOpen && (
         <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-[#E4B45B] rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Editar gasto fixo</h2>
               <button
                 onClick={closeModalEdit}
@@ -254,7 +254,7 @@ export default function SeusGastosVariaveis() {
       {isModalDeleteOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-[#E4B45B] rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Excluir gasto fixo</h2>
               <button
                 onClick={closeModalDelete}
@@ -264,7 +264,7 @@ export default function SeusGastosVariaveis() {
               </button>
             </div>
             <p className="mt-2 text-gray-600 p-5">
-                Deseja excluir esse gasto fixo? Essa ação é irrevertível!
+                Deseja excluir esse gasto fixo? Essa ação é irreversível!
             </p>
             <div className="w-full mt-2 flex justify-center">
               <button 
