@@ -116,7 +116,7 @@ export default function SeusGastosVariaveis() {
       {isModalAddOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex #bg-[#E4B45B] rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+            <div className="flex bg-[#E4B45B] rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
               <button
                 onClick={closeModalAdd}
