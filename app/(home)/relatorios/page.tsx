@@ -2,8 +2,8 @@
 
 import BarChart from "@/components/bar_chart/bar";
 import LineChart from "@/components/line_chart/line";
-import { PieChart } from "@/components/pie_chart/pie";
-import { pieChartData } from '@/service/charts_service'
+import PieChart from "@/components/pie_chart/pie";
+import { pieChartData, barChartData } from '@/service/charts_service'
 
 export default function Relatorios(){
     return(
@@ -25,7 +25,7 @@ export default function Relatorios(){
             <section className="my-2">
                 <h3 className="text-gray-900 text-xl ">Gastos Fixos e Gastos Variáveis</h3>
                 <div className="w-full">
-                    <BarChart data={pieChartData} />
+                    <BarChart data={barChartData} />
                 </div>
             </section>
         </div>

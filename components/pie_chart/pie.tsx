@@ -17,11 +17,11 @@ interface Props {
    data: ChartData<"pie", number[], unknown>
 }
 
-export const PieChart = ({ data }: Props) => {
-   
-   const options = {}
+export default function PieChart({ data }: Props) {
 
-   return (
-    <Pie options={options} data={data}/>
-   )
+    const options = {}
+
+    return (
+      <Pie options={options} data={data}/>
+    )   
 }
