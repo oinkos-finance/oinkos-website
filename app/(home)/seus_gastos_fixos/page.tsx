@@ -1,7 +1,10 @@
 'use client';
 
+import { formSchemaCreateFixedExpenses, FormValues } from "@/schemas/formCreateFixedExpenses";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function SeusGastosFixos() {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -46,6 +49,25 @@ export default function SeusGastosFixos() {
       duration: "Mensal",
     },
   ];
+
+  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { handleSubmit, register, formState: { errors }, reset } = useForm<FormValues>({
+    resolver: zodResolver(formSchemaCreateFixedExpenses),
+    defaultValues: {
+      description: "",
+      category: "",
+      duration: "",
+      value: ""
+    },
+  });
+
+  async function teste() {
+    setIsSubmitSuccessful(true)
+    reset()
+    setIsModalAddOpen(false)
+    setIsModalEditOpen(false)
+  }
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full">
@@ -92,14 +114,14 @@ export default function SeusGastosFixos() {
                         <Trash
                           size={18}
                           className=" text-black"
-                          
+
                         />
                       </div>
                       <div className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer" onClick={openModalEdit}>
                         <Pencil
                           size={18}
                           className=" text-black"
-                          
+
                         />
                       </div>
                     </td>
@@ -120,7 +142,7 @@ export default function SeusGastosFixos() {
       {/* Modal adicionar */}
       {isModalAddOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg w-96 relative">
+          <div className="bg-white rounded-lg w-[500px]  relative">
             <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
               <button
@@ -130,20 +152,22 @@ export default function SeusGastosFixos() {
                 &times;
               </button>
             </div>
-            <form className="p-5">
+            <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
                 <input
-                  id="value"
-                  className="w-full p-2 border rounded-xl"
+                  id="value" {...register("value")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
                 <input
-                  id="description"
-                  className="w-full p-2 border rounded-xl"
+                  id="description" {...register("description")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
@@ -160,16 +184,18 @@ export default function SeusGastosFixos() {
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
                 <input
-                  id="category"
-                  className="w-full p-2 border rounded-xl"
+                  id="category" {...register("category")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
                 <input
-                  id="duration"
-                  className="w-full p-2 border rounded-xl"
+                  id="duration" {...register("duration")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.duration?.message}</label>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button
@@ -187,7 +213,7 @@ export default function SeusGastosFixos() {
       {/* Modal editar */}
       {isModalEditOpen && (
         <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg w-96 relative">
+          <div className="bg-white rounded-lg w-[500px] relative">
             <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
               <h2 className="text-lg text-center w-full text-gray-900">Editar gasto fixo</h2>
               <button
@@ -197,22 +223,24 @@ export default function SeusGastosFixos() {
                 &times;
               </button>
             </div>
-            <form className="p-5">
+            <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
                 <input
-                  id="value"
-                  className="w-full p-2 border rounded-xl"
+                  id="value" {...register("value")}
+                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="R$ 120,00"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
                 <input
-                  id="description"
-                  className="w-full p-2 border rounded-xl"
+                  id="description" {...register("description")}
+                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="Academia"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
@@ -229,18 +257,20 @@ export default function SeusGastosFixos() {
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
                 <input
-                  id="category"
-                  className="w-full p-2 border rounded-xl"
+                  id="category" {...register("category")}
+                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="Esporte"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
                 <input
-                  id="duration"
-                  className="w-full p-2 border rounded-xl"
+                  id="duration" {...register("duration")}
+                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="Mensal"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.duration?.message}</label>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button
@@ -269,10 +299,10 @@ export default function SeusGastosFixos() {
               </button>
             </div>
             <p className="mt-2 text-gray-600 p-5">
-                Deseja excluir esse gasto fixo? Essa ação é irrevertível!
+              Deseja excluir esse gasto fixo? Essa ação é irrevertível!
             </p>
             <div className="w-full mt-2 flex justify-center">
-              <button 
+              <button
                 className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
                 Excluir
               </button>

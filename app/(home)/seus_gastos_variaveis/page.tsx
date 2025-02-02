@@ -1,7 +1,10 @@
 'use client';
 
+import { formSchemaVariableExpenses, FormValues } from "@/schemas/formVariableExpenses";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function SeusGastosVariaveis() {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -47,6 +50,25 @@ export default function SeusGastosVariaveis() {
     },
   ];
 
+  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { handleSubmit, register, formState: { errors }, reset } = useForm<FormValues>({
+    resolver: zodResolver(formSchemaVariableExpenses),
+    defaultValues: {
+      description: "",
+      category: "",
+      date: "",
+      value: ""
+    },
+  });
+
+  async function teste() {
+    setIsSubmitSuccessful(true)
+    reset()
+    setIsModalAddOpen(false)
+    setIsModalEditOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
@@ -82,7 +104,7 @@ export default function SeusGastosVariaveis() {
                       </span>
                     </td>
                     <td className="text-gray-600 p-4">{movement.category}</td>
-                    
+
                     <td className="text-gray-600 p-4">{movement.date}</td>
                     <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
                       <div onClick={openModalDelete} className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer">
@@ -117,7 +139,7 @@ export default function SeusGastosVariaveis() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
             <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
+              <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto variável</h2>
               <button
                 onClick={closeModalAdd}
                 className="text-gray-900 text-3xl hover:text-gray-700"
@@ -125,20 +147,22 @@ export default function SeusGastosVariaveis() {
                 &times;
               </button>
             </div>
-            <form className="p-5">
+            <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
                 <input
-                  id="value"
-                  className="w-full p-2 border rounded-xl"
+                  id="value" {...register("value")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
                 <input
-                  id="description"
-                  className="w-full p-2 border rounded-xl"
+                  id="description" {...register("description")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
@@ -155,16 +179,18 @@ export default function SeusGastosVariaveis() {
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
                 <input
-                  id="category"
-                  className="w-full p-2 border rounded-xl"
+                  id="category" {...register("category")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
+                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Data</label>
                 <input
-                  id="duration"
-                  className="w-full p-2 border rounded-xl"
+                  id="duration" {...register("date")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.date?.message}</label>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button
@@ -184,7 +210,7 @@ export default function SeusGastosVariaveis() {
         <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
             <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">Editar gasto fixo</h2>
+              <h2 className="text-lg text-center w-full text-gray-900">Editar gasto variável</h2>
               <button
                 onClick={closeModalEdit}
                 className="text-gray-900 text-3xl hover:text-gray-700"
@@ -192,22 +218,24 @@ export default function SeusGastosVariaveis() {
                 &times;
               </button>
             </div>
-            <form className="p-5">
+            <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
                 <input
-                  id="value"
-                  className="w-full p-2 border rounded-xl"
+                  id="value" {...register("value")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                   placeholder="R$ 120,00"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
                 <input
-                  id="description"
-                  className="w-full p-2 border rounded-xl"
+                  id="description" {...register("description")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                   placeholder="Academia"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
@@ -224,18 +252,20 @@ export default function SeusGastosVariaveis() {
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
                 <input
-                  id="category"
-                  className="w-full p-2 border rounded-xl"
+                  id="category" {...register("category")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
                   placeholder="Esporte"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
+                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Data</label>
                 <input
-                  id="duration"
-                  className="w-full p-2 border rounded-xl"
-                  placeholder="Mensal"
+                  id="duration" {...register("date")}
+                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
+                  placeholder="14/01/2025"
                 />
+                <label className="text-red-500 mb-3 text-md">{errors.date?.message}</label>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button
@@ -264,10 +294,10 @@ export default function SeusGastosVariaveis() {
               </button>
             </div>
             <p className="mt-2 text-gray-600 p-5">
-                Deseja excluir esse gasto fixo? Essa ação é irreversível!
+              Deseja excluir esse gasto fixo? Essa ação é irreversível!
             </p>
             <div className="w-full mt-2 flex justify-center">
-              <button 
+              <button
                 className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
                 Excluir
               </button>
