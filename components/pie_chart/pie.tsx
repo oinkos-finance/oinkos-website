@@ -19,9 +19,28 @@ interface Props {
 
 export default function PieChart({ data }: Props) {
 
-    const options = {}
+   const options = {
+      plugins: {
+        legend: {
+          display: true,
+          position: "left", 
+          labels: {
+            color: "black",
+            font: {
+              size: 16, 
+            },
+            padding: 32, 
+            usePointStyle: true,
+            pointStyle: "circle"
+          },
+        },
+      },
+      responsive: true,
+      maintainAspectRatio: false, 
+    };
+    
 
     return (
-      <Pie options={options} data={data}/>
+      <Pie height={360} options={options} data={data}/>
     )   
 }

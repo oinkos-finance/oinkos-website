@@ -16,7 +16,7 @@ interface UniqueTransaction {
 interface Dataset {
   label: string;
   data: number[];
-  backgroundColor: string[];
+  backgroundColor: string[] | string;
 }
 
 interface ChartData {
@@ -48,7 +48,7 @@ const findAllUniqueTransactions = (): UniqueTransaction[] => {
   );
 }; 
 
-let colors = [
+const colors = [
   "#7CA9AD", "#51ABB4", "#F29A7A", "#E4B45B", "#E4575B", "#91245B",  
   "#A3C4BC", "#D6A2AD", "#F7D08A", "#FF9770", "#6A0572", "#A1C181",  
   "#B8BEDD", "#FFD6E0", "#C9ADA7"
@@ -83,84 +83,96 @@ const generateDonutChartData = async (): Promise<ChartData> => {
 const generateBarChartData = async (): Promise<ChartData> => {
   // const data = await getTransactionsAccordingToPeriod(period)
 
-  let datasets: Dataset[]
   const recurringTransactions = findAllRecurringTransactions();
   const uniqueTransaction = findAllUniqueTransactions();
 
-  // meses = 12 semanas  
+  // 3 meses = 12 semanas  
   // 1 mes = 4 semanas
   // 1 semana 
   let period = ["Janeiro", "Fevereiro", "Março"]
   //const recurringTransactions.map(())
 
-  period.forEach((value, i) => {
+  const recurringSumData: number[] = []
+  const uniqueSumData: number[] = []
 
-    let recurringTransactionsSum = recurringTransactions
+  period.forEach(() => {
+
+    const recurringTransactionsSum = recurringTransactions
       //.filter((transaction: RecurringTransaction) => transaction.endDate < value)
       .reduce(
       (acc, transaction: RecurringTransaction) => acc + transaction.value, 0
     )
 
-    let uniqueTransactionsSum = uniqueTransaction
+    const uniqueTransactionsSum = uniqueTransaction
       //.filter((transaction: RecurringTransaction) => transaction.endDate < value)
       .reduce(
       (acc, transaction: UniqueTransaction) => acc + transaction.value, 0
     )
 
-    let data: Dataset = {
-      label: value,
-      data: [recurringTransactionsSum, uniqueTransactionsSum],
-      backgroundColor: colors.slice(i, i*2+1)
-    }
-
-    datasets.push(data)
+    recurringSumData.push(recurringTransactionsSum)
+    uniqueSumData.push(uniqueTransactionsSum)
   })
 
-
   const data: ChartData = {
-    labels: ["Gastos Fixos", "Gastos Variáveis"],
-    datasets: datasets,
+    labels: period,
+    datasets: [
+      {
+        label: "Gasto Fixo",
+        data: recurringSumData,
+        backgroundColor: colors[2],
+      },
+      {
+        label: "Gasto Variável",
+        data: uniqueSumData,
+        backgroundColor: colors[3],
+      }
+    ]
   };
 
   return data;
 };
 
-export const lineChartData = {
-  labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-  datasets: [
-    {
-      label: "Steps",
-      data: [1, 21, 4, 51, 100],
-      borderColor: "rgb(0, 100, 100)",
-    },
-    {
-      label: "Steps1",
-      data: [1, 11, 100, 50, 90],
-      borderColor: "#443332",
-    },
-  ],
+const genereteLineChartData = async (): Promise<ChartData> => {
+  // const data = await getTransactionsAccordingToPeriod(period)
+
+  let period = ["Janeiro", "Fevereiro", "Março"]
+  let saldo = 2000;
+
+  const transactionsSumData: number[] = []
+  const savingData: number[] = []
+
+  period.forEach(() => {
+
+    const transactionsSum = transactions
+      //.filter((transaction: RecurringTransaction) => transaction.endDate < value)
+      .reduce(
+      (acc, transaction: Transaction) => acc + transaction.value, 0
+    )
+
+    const saving = saldo - transactionsSum
+    transactionsSumData.push(transactionsSum)
+    savingData.push(saving > 0 ? saving : 0)
+  })
+
+  const data: ChartData = {
+    labels: period,
+    datasets: [
+      {
+        label: "Gasto Total",
+        data: transactionsSumData,
+        backgroundColor: colors[5],
+      },
+      {
+        label: "Economia",
+        data: savingData,
+        backgroundColor: colors[1],
+      }
+    ]
+  };
+
+  return data;
 };
 
-export const barChartData = {
-  labels: ["a", "b", "c", "d", "e"],
-  datasets: [
-    {
-      label: "Expenses",
-      data: [120, 200, 1020, 400, 200],
-      backgroundColor: ["red", "blue", "yellow", "green"],
-      borderColor: "black",
-      borderWidth: 2,
-    },
-    {
-      label: "Expenses",
-      data: [120, 200, 1020, 400, 200],
-      backgroundColor: ["red", "blue", "yellow", "green"],
-      borderColor: "black",
-      borderWidth: 2,
-    },
-  ],
-};
-
+export const lineChartData = await genereteLineChartData();
+export const barChartData = await generateBarChartData();
 export const pieChartData = await generateDonutChartData();
-
-console.log(pieChartData);

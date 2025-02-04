@@ -27,9 +27,27 @@ interface Props {
 
 export default function LineChart({ data }: Props) {
 
-    const options = {}
+    const options = {
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom", 
+            labels: {
+              color: "black",
+              font: {
+                size: 16, 
+              },
+              padding: 20, 
+              usePointStyle: true,
+              pointStyle: "circle"
+            },
+          },
+        },
+        responsive: true,
+        maintainAspectRatio: false, 
+      };
 
     return (
-        <Line options={options} data={data}/>
+        <Line height={360} options={options} data={data}/>
     )   
 }

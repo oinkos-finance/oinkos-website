@@ -26,9 +26,27 @@ interface Props {
 
 export default function BarChart({ data }: Props) {
 
-    const options = {}
+    const options = {
+        plugins: {
+          legend: {
+            display: true,
+            position: "bottom", 
+            labels: {
+              color: "black",
+              font: {
+                size: 16, 
+              },
+              padding: 20, 
+              usePointStyle: true,
+              pointStyle: "circle"
+            },
+          },
+        },
+        responsive: true,
+        maintainAspectRatio: false, 
+      };
 
     return (
-        <Bar options={options} data={data}/>
+        <Bar height={360} options={options} data={data}/>
     )   
 }
