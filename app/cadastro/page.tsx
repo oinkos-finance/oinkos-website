@@ -38,19 +38,19 @@ export default function Cadastro() {
                     <Image src="/LoginOinkos.png" alt="logo" width={250} height={250} />
                 </div>
                 <div className="grid grid-cols-1 gap-2 md:gap-6 md:grid-cols-2 w-11/12">
-                    <div className="flex flex-col  items-center w-full">
+                    <div className="flex flex-col  items-center w-full gap-1">
                         <input placeholder="Nome" className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none" {...register("name")} />
                         <label className="text-red-800 mb-3 text-md">{errors.name?.message}</label>
                     </div>
-                    <div  className="flex flex-col items-center w-full">
+                    <div  className="flex flex-col items-center w-full gap-1">
                         <input placeholder="E-mail" className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none" {...register("email")} />
                         <label className="text-red-800 mb-3 text-md">{errors.email?.message}</label>
                     </div>
-                    <div  className="flex flex-col  items-center w-full">
+                    <div  className="flex flex-col  items-center w-full gap-1">
                         <input type="password" placeholder="Senha" className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none" {...register("password")} />
                         <label className="text-red-800 mb-3 text-md">{errors.password?.message}</label>
                     </div>
-                    <div  className="flex flex-col  items-center w-full">
+                    <div  className="flex flex-col  items-center w-full gap-1">
                         <input type="password" placeholder="Confirmar senha" className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none" {...register("confirm_password")} />
                         <label className="text-red-800 mb-3 text-md">{errors.confirm_password?.message}</label>
                     </div>

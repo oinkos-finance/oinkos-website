@@ -56,7 +56,6 @@ export default function SeusGastosVariaveis() {
     resolver: zodResolver(formSchemaVariableExpenses),
     defaultValues: {
       description: "",
-      category: "",
       date: "",
       value: ""
     },
@@ -70,7 +69,7 @@ export default function SeusGastosVariaveis() {
   }
 
   return (
-    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full">
+    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl text-black mb-6">Seus Gastos Variáveis</h1>
         <button onClick={openModalAdd} className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]">Adicionar</button>
@@ -177,12 +176,18 @@ export default function SeusGastosVariaveis() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
-                <input
-                  id="category" {...register("category")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
+              <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
+                <select
+                  id="category"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Academia</option>
+                  <option value="dinheiro">Aluguel</option>
+                  <option value="credito">Roupas</option>
+                  <option value="debito">Farmácia</option>
+                  <option value="debito">Mercado</option>
+                  <option value="debito">Outros</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Data</label>
@@ -250,13 +255,18 @@ export default function SeusGastosVariaveis() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
-                <input
-                  id="category" {...register("category")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                  placeholder="Esporte"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
+              <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
+                <select
+                  id="category"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Academia</option>
+                  <option value="dinheiro">Aluguel</option>
+                  <option value="credito">Roupas</option>
+                  <option value="debito">Farmácia</option>
+                  <option value="debito">Mercado</option>
+                  <option value="debito">Outros</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Data</label>

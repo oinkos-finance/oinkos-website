@@ -41,7 +41,7 @@ export default function MinhasMovimentacoes() {
   const variableExpenses = 11;
 
   return (
-    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full">
+    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <h1 className="text-2xl text-black mb-6">Suas Movimentações</h1>
 
       {movements && movements.length > 0 ? (

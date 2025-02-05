@@ -56,8 +56,6 @@ export default function SeusGastosFixos() {
     resolver: zodResolver(formSchemaCreateFixedExpenses),
     defaultValues: {
       description: "",
-      category: "",
-      duration: "",
       value: ""
     },
   });
@@ -70,14 +68,14 @@ export default function SeusGastosFixos() {
   }
 
   return (
-    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full">
+    <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl text-black mb-6">Seus Gastos Fixos</h1>
         <button onClick={openModalAdd} className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]">Adicionar</button>
       </div>
 
       {movements && movements.length > 0 ? (
-        <div>
+        <div className="">
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
               <thead className="bg-fixed_outgoing">
@@ -183,19 +181,27 @@ export default function SeusGastosFixos() {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
-                <input
-                  id="category" {...register("category")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
+                <select
+                  id="category"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Academia</option>
+                  <option value="dinheiro">Aluguel</option>
+                  <option value="credito">Roupas</option>
+                  <option value="debito">Farmácia</option>
+                  <option value="debito">Mercado</option>
+                  <option value="debito">Outros</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
-                <input
-                  id="duration" {...register("duration")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.duration?.message}</label>
+                <select
+                  id="duration"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Semanal</option>
+                  <option value="dinheiro">Mensal</option>
+                </select>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button
@@ -256,21 +262,27 @@ export default function SeusGastosFixos() {
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
-                <input
-                  id="category" {...register("category")}
-                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
-                  placeholder="Esporte"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.category?.message}</label>
+                <select
+                  id="category"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Academia</option>
+                  <option value="dinheiro">Aluguel</option>
+                  <option value="credito">Roupas</option>
+                  <option value="debito">Farmácia</option>
+                  <option value="debito">Mercado</option>
+                  <option value="debito">Outros</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
-                <input
-                  id="duration" {...register("duration")}
-                  className="w-full p-2 border rounded-xl focus:outline-none text-black"
-                  placeholder="Mensal"
-                />
-                <label className="text-red-500 mb-3 text-md">{errors.duration?.message}</label>
+                <select
+                  id="duration"
+                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+                >
+                  <option value="pix">Semanal</option>
+                  <option value="dinheiro">Mensal</option>
+                </select>
               </div>
               <div className="w-full mt-2 flex justify-center">
                 <button

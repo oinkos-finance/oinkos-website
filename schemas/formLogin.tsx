@@ -6,7 +6,7 @@ export const formSchemaLogin = z.object({
     message: "Por favor insira um email válido.",
   }),
   password: z.string().min(8,{
-    message: "A senha deverá ter no mínimo oito caracteres"
+    message: "A senha deverá ter no mínimo oito caracteres."
   })
 });
 
