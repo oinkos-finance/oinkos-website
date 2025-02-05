@@ -8,12 +8,12 @@ export const formSchemaRegister = z.object({
         message: "Por favor insira um email válido.",
     }),
     password: z.string().min(8, {
-        message: "A senha deverá ter no mínimo oito caracteres"
+        message: "A senha deve ter no mínimo oito caracteres."
     }),
     confirm_password: z.string()
-    .nonempty("É obrigatório confirmar sua senha")
+    .nonempty("É obrigatório confirmar sua senha.")
 }).refine(({ password, confirm_password}) => password === confirm_password, {
-    message: "As senhas não são iguais",
+    message: "As senhas não são iguais.",
     path: ["confirm_password"]
 })
 

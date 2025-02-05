@@ -7,7 +7,7 @@ import { useState } from "react";
 export default function Sidebar() {
 
     const [navbar, setNavbar] = useState(false);
-    const alternaIcone = () => setNavbar(!navbar)
+    const alternaStatus = () => setNavbar(!navbar)
 
     return (
         <section>
@@ -38,26 +38,26 @@ export default function Sidebar() {
                 <div className="fixed inset-0 bg-gradient-to-br from-[#7ca9ad] to-[#51abb4] z-50 flex flex-col p-4 gap-10">
                     <div className="flex justify-between ">
                         <Image src="/LoginOinkos.png" alt="logo" width={200} height={200} />
-                        <X onClick={alternaIcone} className="w-8 h-8 cursor-pointer text-white" />
+                        <X onClick={alternaStatus} className="w-8 h-8 cursor-pointer text-white" />
                     </div>
                     <div className="flex flex-col gap-4 mt-4">
-                        <Link href="/pagina_inicial" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3 " onClick={alternaIcone}>
+                        <Link href="/pagina_inicial" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3 " onClick={alternaStatus}>
                             <Home  className="w-8 h-8"/> 
                             <span className="text-2xl"> Página inicial</span>
                         </Link>
-                        <Link href="/minhas_movimentacoes" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaIcone}>
+                        <Link href="/minhas_movimentacoes" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaStatus}>
                             <Folder className="w-8 h-8"/>
                             <span className="text-2xl"> Transações</span>
                         </Link>
-                        <Link href="/relatorios" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaIcone}>
+                        <Link href="/relatorios" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaStatus}>
                             <BarChart className="w-8 h-8"/> 
                             <span className="text-2xl"> Relatórios</span>
                         </Link>
-                        <Link href="/meu_perfil" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaIcone}>
+                        <Link href="/meu_perfil" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3" onClick={alternaStatus}>
                             <User className="w-8 h-8"/> 
                             <span className="text-2xl"> Meu Perfil</span>
                         </Link>
-                        <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3" onClick={alternaIcone}>
+                        <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3" onClick={alternaStatus}>
                             <LogOut className="w-8 h-8"/>
                             <span className="text-2xl"> Logout</span>
                         </Link>
@@ -68,8 +68,8 @@ export default function Sidebar() {
             <div className="md:hidden bg-[#51abb4] rounded-md p-1 ">
                 <div className="flex gap-4">
                     <Menu
-                        onClick={alternaIcone}
-                        className="w-12 h-12 cursor-pointer"
+                        onClick={alternaStatus}
+                        className="w-10 h-10 cursor-pointer"
                     />
 
                 </div>

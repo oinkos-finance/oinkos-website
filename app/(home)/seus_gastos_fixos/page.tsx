@@ -92,10 +92,10 @@ export default function SeusGastosFixos() {
                 {movements.map((movement, index) => (
                   <tr
                     key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0"
+                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center "
                   >
                     <td className="text-gray-800 font-bold p-4">{movement.value}</td>
-                    <td className="text-gray-600 p-4">{movement.description}</td>
+                    <td className="text-gray-600 p-4 ">{movement.description}</td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
                         {movement.format}
@@ -103,7 +103,7 @@ export default function SeusGastosFixos() {
                     </td>
                     <td className="text-gray-600 p-4">{movement.category}</td>
                     <td className="text-gray-600 p-4">
-                      <span className="bg-[#D9D9D9] text-black py-1 px-3 rounded-full">
+                      <span className="bg-[#3f2f2f] text-black py-1 px-3 rounded-full">
                         {movement.duration}
                       </span>
                     </td>
