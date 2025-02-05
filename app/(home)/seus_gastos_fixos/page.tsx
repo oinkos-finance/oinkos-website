@@ -103,7 +103,7 @@ export default function SeusGastosFixos() {
                     </td>
                     <td className="text-gray-600 p-4">{movement.category}</td>
                     <td className="text-gray-600 p-4">
-                      <span className="bg-[#3f2f2f] text-black py-1 px-3 rounded-full">
+                      <span className="bg-[#D9D9D9] text-black py-1 px-3 rounded-full">
                         {movement.duration}
                       </span>
                     </td>
