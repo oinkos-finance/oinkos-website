@@ -1,6 +1,9 @@
-'use client';
+"use client";
 
-import { formSchemaCreateFixedExpenses, FormValues } from "@/schemas/formCreateFixedExpenses";
+import {
+  formSchemaCreateFixedExpenses,
+  FormValues,
+} from "@/schemas/formCreateFixedExpenses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash } from "lucide-react";
 import { useState } from "react";
@@ -50,28 +53,37 @@ export default function SeusGastosFixos() {
     },
   ];
 
-  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { handleSubmit, register, formState: { errors }, reset } = useForm<FormValues>({
+  const [, setIsSubmitSuccessful] = useState(false);
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    reset,
+  } = useForm<FormValues>({
     resolver: zodResolver(formSchemaCreateFixedExpenses),
     defaultValues: {
       description: "",
-      value: ""
+      value: "",
     },
   });
 
   async function teste() {
-    setIsSubmitSuccessful(true)
-    reset()
-    setIsModalAddOpen(false)
-    setIsModalEditOpen(false)
+    setIsSubmitSuccessful(true);
+    reset();
+    setIsModalAddOpen(false);
+    setIsModalEditOpen(false);
   }
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-3xl text-black mb-6">Seus Gastos Fixos</h1>
-        <button onClick={openModalAdd} className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]">Adicionar</button>
+        <button
+          onClick={openModalAdd}
+          className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
+        >
+          Adicionar
+        </button>
       </div>
 
       {movements && movements.length > 0 ? (
@@ -94,8 +106,12 @@ export default function SeusGastosFixos() {
                     key={index}
                     className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center "
                   >
-                    <td className="text-gray-800 font-bold p-4">{movement.value}</td>
-                    <td className="text-gray-600 p-4 ">{movement.description}</td>
+                    <td className="text-gray-800 font-bold p-4">
+                      {movement.value}
+                    </td>
+                    <td className="text-gray-600 p-4 ">
+                      {movement.description}
+                    </td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
                         {movement.format}
@@ -108,19 +124,17 @@ export default function SeusGastosFixos() {
                       </span>
                     </td>
                     <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
-                      <div className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer" onClick={openModalDelete}>
-                        <Trash
-                          size={18}
-                          className=" text-black"
-
-                        />
+                      <div
+                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        onClick={openModalDelete}
+                      >
+                        <Trash size={18} className=" text-black" />
                       </div>
-                      <div className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer" onClick={openModalEdit}>
-                        <Pencil
-                          size={18}
-                          className=" text-black"
-
-                        />
+                      <div
+                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        onClick={openModalEdit}
+                      >
+                        <Pencil size={18} className=" text-black" />
                       </div>
                     </td>
                   </tr>
@@ -142,7 +156,9 @@ export default function SeusGastosFixos() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-[500px]  relative">
             <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">Adicionar gasto fixo</h2>
+              <h2 className="text-lg text-center w-full text-gray-900">
+                Adicionar gasto fixo
+              </h2>
               <button
                 onClick={closeModalAdd}
                 className="text-gray-900 text-3xl hover:text-gray-700"
@@ -152,23 +168,44 @@ export default function SeusGastosFixos() {
             </div>
             <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="value"
+                >
+                  Valor
+                </label>
                 <input
-                  id="value" {...register("value")}
+                  id="value"
+                  {...register("value")}
                   className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
-                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
+                <label className="text-red-500 mb-3 text-md">
+                  {errors.value?.message}
+                </label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="description"
+                >
+                  Descrição
+                </label>
                 <input
-                  id="description" {...register("description")}
+                  id="description"
+                  {...register("description")}
                   className="w-full p-2 border rounded-xl text-black focus:outline-none"
                 />
-                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
+                <label className="text-red-500 mb-3 text-md">
+                  {errors.description?.message}
+                </label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="format"
+                >
+                  Formato
+                </label>
                 <select
                   id="format"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -180,7 +217,12 @@ export default function SeusGastosFixos() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="category"
+                >
+                  Categoria
+                </label>
                 <select
                   id="category"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -194,7 +236,12 @@ export default function SeusGastosFixos() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="duration"
+                >
+                  Duração
+                </label>
                 <select
                   id="duration"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -221,7 +268,9 @@ export default function SeusGastosFixos() {
         <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-[500px] relative">
             <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">Editar gasto fixo</h2>
+              <h2 className="text-lg text-center w-full text-gray-900">
+                Editar gasto fixo
+              </h2>
               <button
                 onClick={closeModalEdit}
                 className="text-gray-900 text-3xl hover:text-gray-700"
@@ -231,25 +280,46 @@ export default function SeusGastosFixos() {
             </div>
             <form className="p-5" onSubmit={handleSubmit(teste)}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="value">Valor</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="value"
+                >
+                  Valor
+                </label>
                 <input
-                  id="value" {...register("value")}
+                  id="value"
+                  {...register("value")}
                   className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="R$ 120,00"
                 />
-                <label className="text-red-500 mb-3 text-md">{errors.value?.message}</label>
+                <label className="text-red-500 mb-3 text-md">
+                  {errors.value?.message}
+                </label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="description">Descrição</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="description"
+                >
+                  Descrição
+                </label>
                 <input
-                  id="description" {...register("description")}
+                  id="description"
+                  {...register("description")}
                   className="w-full p-2 border rounded-xl focus:outline-none text-black"
                   placeholder="Academia"
                 />
-                <label className="text-red-500 mb-3 text-md">{errors.description?.message}</label>
+                <label className="text-red-500 mb-3 text-md">
+                  {errors.description?.message}
+                </label>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="format">Formato</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="format"
+                >
+                  Formato
+                </label>
                 <select
                   id="format"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -261,7 +331,12 @@ export default function SeusGastosFixos() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="category">Categoria</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="category"
+                >
+                  Categoria
+                </label>
                 <select
                   id="category"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -275,7 +350,12 @@ export default function SeusGastosFixos() {
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-1" htmlFor="duration">Duração</label>
+                <label
+                  className="block text-gray-700 text-sm font-bold mb-1"
+                  htmlFor="duration"
+                >
+                  Duração
+                </label>
                 <select
                   id="duration"
                   className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
@@ -302,7 +382,9 @@ export default function SeusGastosFixos() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg w-96 relative">
             <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">Excluir gasto fixo</h2>
+              <h2 className="text-lg text-center w-full text-gray-900">
+                Excluir gasto fixo
+              </h2>
               <button
                 onClick={closeModalDelete}
                 className="text-gray-900 text-3xl hover:text-gray-700"
@@ -314,8 +396,7 @@ export default function SeusGastosFixos() {
               Deseja excluir esse gasto fixo? Essa ação é irrevertível!
             </p>
             <div className="w-full mt-2 flex justify-center">
-              <button
-                className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
+              <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
                 Excluir
               </button>
             </div>
