@@ -1,5 +1,6 @@
 "use client";
 import { formSchemaRegister, FormValues } from "@/schemas/formRegister";
+import getCookies from "@/server/cookies/cookies";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -8,26 +9,61 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Cadastro() {
+  const [error, setError] = useState<string | null>(null);
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const {
     handleSubmit,
     register,
     formState: { errors },
-    reset,
+    reset
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaRegister),
     defaultValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
-      confirm_password: "",
+      confirmPassword: "",
     },
   });
 
-  async function teste() {
-    setIsSubmitSuccessful(true);
-    reset();
+  async function teste(data: FormValues) {
+    setError(null)
+    const options = {
+      method: 'POST',
+      headers: { accept: 'application/json', 'content-type': 'application/json' },
+      body: JSON.stringify({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword
+      }),
+    };
+
+    fetch('https://api.oinkos.samnsc.com/signup', options)
+      .then(res => res.json().then(data => ({ status: res.status, data }))
+      .then(async res => {
+        console.log(res, 'teste')
+        const token = res.data.token;
+        getCookies(token)
+        
+        if (res.status === 400)
+          setError('Já existe um usuário com esse username')
+        else if(res.status === 402)
+          setError('Valores inválidos')
+        else if(res.status === 500)
+          setError('Erro interno no servidor')
+        else{
+          setIsSubmitSuccessful(true)
+          reset()
+        }
+
+      })
+      .catch(err => console.error(err)))
+
+    console.log(data, 'teste1')
+
   }
+
 
   return (
     <div className="flex bg-[#E5E7E5] items-center justify-center min-h-screen">
@@ -46,12 +82,12 @@ export default function Cadastro() {
         <div className="grid grid-cols-1 gap-2 md:gap-6 md:grid-cols-2 w-11/12">
           <div className="flex flex-col  items-center w-full gap-1">
             <input
-              placeholder="Nome"
+              placeholder="Username"
               className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none"
-              {...register("name")}
+              {...register("username")}
             />
             <label className="text-red-800 mb-3 text-md">
-              {errors.name?.message}
+              {errors.username?.message}
             </label>
           </div>
           <div className="flex flex-col items-center w-full gap-1">
@@ -80,18 +116,25 @@ export default function Cadastro() {
               type="password"
               placeholder="Confirmar senha"
               className="bg-white w-11/12 sm:w-4/5 md:w-full p-2 rounded-2xl drop-shadow-lg text-[#051A29] focus:outline-none"
-              {...register("confirm_password")}
+              {...register("confirmPassword")}
             />
             <label className="text-red-800 mb-3 text-md">
-              {errors.confirm_password?.message}
+              {errors.confirmPassword?.message}
             </label>
           </div>
         </div>
         {isSubmitSuccessful && (
-          <span className=" text-emerald-950 text-center text-md">
+          <span className=" text-green-900 text-center text-lg">
             Cadastro realizado com sucesso!
           </span>
         )}
+
+        {
+          error && <span className=" text-red-800 text-center text-lg">
+            {error}
+          </span>
+        }
+
         <div className="flex gap-1">
           <span className="text-[#020202] text-md md:text-lg lg:text-xl">
             Já tem uma conta?{" "}

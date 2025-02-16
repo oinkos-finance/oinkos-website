@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const formSchemaRegister = z.object({
-    name: z.string().min(3, {
+    username: z.string().min(3, {
         message: "Nome deve ter pelo menos 3 caracteres.",
     }),
     email: z.string().email({
@@ -10,9 +10,9 @@ export const formSchemaRegister = z.object({
     password: z.string().min(8, {
         message: "A senha deve ter no mínimo oito caracteres."
     }),
-    confirm_password: z.string()
+    confirmPassword: z.string()
     .nonempty("É obrigatório confirmar sua senha.")
-}).refine(({ password, confirm_password}) => password === confirm_password, {
+}).refine(({ password, confirmPassword}) => password === confirmPassword, {
     message: "As senhas não são iguais.",
     path: ["confirm_password"]
 })
