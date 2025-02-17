@@ -1,12 +1,12 @@
 "use client";
 import { formSchemaRegister, FormValues } from "@/schemas/formRegister";
-import getCookies from "@/server/cookies/cookies";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import setCookies from "../../server/cookies/cookies";
 
 export default function Cadastro() {
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +43,6 @@ export default function Cadastro() {
       .then(res => res.json().then(data => ({ status: res.status, data }))
       .then(async res => {
         console.log(res, 'teste')
-        const token = res.data.token;
-        getCookies(token)
         
         if (res.status === 400)
           setError('Já existe um usuário com esse username')
@@ -53,6 +51,8 @@ export default function Cadastro() {
         else if(res.status === 500)
           setError('Erro interno no servidor')
         else{
+          const token = res.data.token;
+          setCookies(token)
           setIsSubmitSuccessful(true)
           reset()
         }

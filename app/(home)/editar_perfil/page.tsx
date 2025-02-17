@@ -1,27 +1,54 @@
-"use client";
+'use client'
 import { formSchemaMyProfile, FormValues } from "@/schemas/formMyProfile";
+import getUser from "@/server/getUser/getUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
+type User = {
+  username: string,
+  id: string,
+  balance: number,
+  email: string
+}
+
 export default function EditarPerfil() {
-  const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
+  const [user, setUser] = useState<User | undefined>(undefined) //foi usado essa exibição dos dados por o componente ser client
   const {
     handleSubmit,
     register,
     formState: { errors },
+    setValue
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaMyProfile),
     defaultValues: {
-      name: "",
-      email: "",
-      balance: "",
+      name: user?.username,
+      email: user?.email,
+      balance: user?.balance,
     },
   });
 
-  async function editInformation() {
-    setIsSubmitSuccessful(true);
+  async function teste() {
+    const data = await getUser()
+    setUser(data)
+    console.log(data)
+  }
+
+  useEffect(() => {
+    teste()
+  },[])
+
+  useEffect(() => {
+    if (user) {
+      setValue("name", user.username);
+      setValue("email", user.email);
+      setValue("balance", user.balance);
+    }
+  }, [user, setValue]);
+
+  function editInformation() {
+    console.log('nada')
   }
 
   return (
@@ -39,7 +66,7 @@ export default function EditarPerfil() {
               Nome:
             </label>
             <input
-              placeholder=" Nome da pessoa"
+              defaultValue={user?.username}
               className="bg-black/15 placeholder-black border text-sm p-2 rounded-3xl text-black focus:outline-none"
               {...register("name")}
             />
@@ -50,7 +77,7 @@ export default function EditarPerfil() {
           <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2">
             <label className="text-black md:text-md text-lg pl-1">Email:</label>
             <input
-              placeholder=" email@gmail.com"
+              defaultValue={user?.email}
               className="bg-black/15 placeholder-black border text-sm p-2 rounded-3xl text-black focus:outline-none"
               {...register("email")}
             />
@@ -65,7 +92,7 @@ export default function EditarPerfil() {
               Saldo:
             </label>
             <input
-              placeholder="R$ 0,00"
+              defaultValue={user?.balance}
               className="bg-black/15 border text-sm p-2 placeholder-black rounded-3xl text-black focus:outline-none"
               {...register("balance")}
             />
@@ -74,11 +101,7 @@ export default function EditarPerfil() {
             </label>
           </div>
         </div>
-        {isSubmitSuccessful && (
-          <span className=" text-green-500 text-center text-md">
-            Dados editados com sucesso!
-          </span>
-        )}
+
         <div className="flex flex-col md:flex-row gap-3 pt-10 md:pt-6 md:gap-6 lg:gap-8 w-full justify-center items-center">
           <button
             type="submit"

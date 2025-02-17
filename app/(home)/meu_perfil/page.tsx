@@ -1,7 +1,15 @@
 
+import getCookies from "@/server/cookies/getCookies";
+import getUser from "@/server/getUser/getUser";
 import Link from "next/link";
 
-export default function VisualizarPerfil() {
+export default async function VisualizarPerfil() {
+
+
+    const data = await getUser()
+    console.log(data)
+
+
     return (
         <div className="bg-white w-full min-h-screen flex flex-col gap-10 items-center py-20 px-8 rounded-xl">
             <div className="flex flex-col sm:flex-row w-full justify-between">
@@ -14,18 +22,18 @@ export default function VisualizarPerfil() {
                 <div className="flex flex-col md:flex-row w-full gap-6 md:gap-6 lg:gap-8 items-center justify-center">
                     <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2">
                         <label className="text-black text-start md:text-md text-lg pl-1">Nome:</label>
-                        <input name="nome" placeholder=" Nome da pessoa" className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled/>
+                        <input name="nome" value={data?.username} className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled />
                     </div>
                     <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2">
                         <label className="text-black md:text-md text-lg pl-1">Email:</label>
-                        <input name="nome" placeholder=" email@gmail.com" className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled/>
+                        <input name="nome" value={data?.email} className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled />
                     </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row w-full gap-6 md:gap-6 lg:gap-8 items-center justify-start ">
                     <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2 ">
                         <label className="text-black text-start md:text-md text-lg pl-1">Saldo:</label>
-                        <input name="nome" placeholder="R$ 0,00" className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled/>
+                        <input name="nome" value={data?.balance} className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled />
                     </div>
                 </div>
             </div>

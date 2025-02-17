@@ -8,7 +8,10 @@ export const formSchemaMyProfile = z.object({
   email: z.string().email({
     message: "Por favor insira um email válido.",
   }),
-  balance : z.string().regex(/^\d+\,\d{2}$/, "O valor deve estar no formato decimal (ex: 12,90)")
+  balance : z.number({
+    message: "Por favor insira um número válido.",
+  })
+  
 });
 
 export type FormValues = z.infer<typeof formSchemaMyProfile>;

@@ -2,8 +2,8 @@
 import { z } from "zod";
 
 export const formSchemaLogin = z.object({
-  email: z.string().email({
-    message: "Por favor insira um email válido.",
+  username: z.string().min(3,{
+    message: "Seu username deve ter no mínimo três caracteres",
   }),
   password: z.string().min(8,{
     message: "A senha deverá ter no mínimo oito caracteres."

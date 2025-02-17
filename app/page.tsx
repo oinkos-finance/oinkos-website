@@ -1,28 +1,62 @@
 "use client";
 
 import { formSchemaLogin, FormValues } from "@/schemas/formLogin";
+import setCookies from "@/server/cookies/cookies";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Login() {
-  const [, setIsSubmitSuccessful] = useState(false);
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaLogin),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
-  async function teste() {
-    setIsSubmitSuccessful(true);
+  async function teste(data: FormValues) {
+    setError(null)
+    const username = data.username
+    const password = data.password
+
+    const credentials = `${username}:${password}`;
+
+    const encodedCredentials = btoa(credentials);
+
+    const options = {
+      method: 'POST',
+      headers: { accept: 'application/json', authorization: `Basic ${encodedCredentials}` }
+    };
+
+    fetch('https://api.oinkos.samnsc.com/login', options)
+      .then(res => res.json().then(data => ({ status: res.status, data }))
+        .then(res => {
+
+          if (res.status === 401) {
+            setError('Credenciais inválidas. Por favor, verifique seu username e senha.')
+          }
+          else if(res.status === 500){
+            setError('Interno interno no servidor. Tente novamente mais tarde')
+          }
+          else {
+            setCookies(res.data.token),
+            router.replace('/pagina_inicial')
+          }
+        }
+        ))
+        .catch(err => console.error(err))
+
   }
 
   return (
@@ -38,10 +72,10 @@ export default function Login() {
           <input
             placeholder="e-mail"
             className="bg-[#FFFFFF] p-2 rounded-2xl drop-shadow-lg w-11/12 sm:w-4/6 md:w-2/3 text-[#051A29] focus:outline-none"
-            {...register("email")}
+            {...register("username")}
           ></input>
           <label className="text-red-800 text-md">
-            {errors.email?.message}
+            {errors.username?.message}
           </label>
 
           <input
@@ -54,6 +88,13 @@ export default function Login() {
             {errors.password?.message}
           </label>
         </div>
+
+        {
+          error && <span className=" text-red-800 text-center text-lg">
+            {error}
+          </span>
+        }
+
         <div className="flex gap-1 md:gap-2">
           <span className="text-[#020202] text-md md:text-lg lg:text-lg">
             Não tem uma conta?{" "}
