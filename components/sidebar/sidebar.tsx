@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Home, BarChart, User, LogOut, Folder, X, Menu } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { Logout } from "@/server/logout/logout";
 
 export default function Sidebar() {
 
@@ -28,7 +29,7 @@ export default function Sidebar() {
                     <Link href="/meu_perfil" className="hover:bg-[#2c7a7e]/30 text-xl py-2 px-4 rounded-md flex items-center gap-3">
                         <User /> Meu Perfil
                     </Link>
-                    <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3">
+                    <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3" onClick={Logout}>
                         <LogOut /> Logout
                     </Link>
                 </div>
@@ -57,7 +58,7 @@ export default function Sidebar() {
                             <User className="w-8 h-8"/> 
                             <span className="text-2xl"> Meu Perfil</span>
                         </Link>
-                        <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3" onClick={alternaStatus}>
+                        <Link href="/" className="hover:bg-[#FF4D4D]/80 py-2 px-4 text-lg rounded-md flex items-center gap-3" onClick={() => {alternaStatus(); Logout()}}>
                             <LogOut className="w-8 h-8"/>
                             <span className="text-2xl"> Logout</span>
                         </Link>

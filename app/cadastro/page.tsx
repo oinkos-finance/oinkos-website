@@ -28,6 +28,7 @@ export default function Cadastro() {
 
   async function teste(data: FormValues) {
     setError(null)
+    setIsSubmitSuccessful(false)
     const options = {
       method: 'POST',
       headers: { accept: 'application/json', 'content-type': 'application/json' },
@@ -44,15 +45,19 @@ export default function Cadastro() {
       .then(async res => {
         console.log(res, 'teste')
         
-        if (res.status === 400)
-          setError('Já existe um usuário com esse username')
-        else if(res.status === 402)
-          setError('Valores inválidos')
+        if (res.status === 400){
+          if(res.data.reason === 'Mismatched passwords')
+            setError('É obrigatório colocar a senha e confirmá-la.')
+          else if(res.data.reason === 'Malformed syntax')
+            setError('Sintaxe de resposta mal formatada.')
+          else
+            setError('Já existe um usuário com esse username ou e-mail.')
+        }
+        else if(res.status === 422)
+          setError('Valores inválidos.')
         else if(res.status === 500)
-          setError('Erro interno no servidor')
+          setError('Erro interno no servidor.')
         else{
-          const token = res.data.token;
-          setCookies(token)
           setIsSubmitSuccessful(true)
           reset()
         }

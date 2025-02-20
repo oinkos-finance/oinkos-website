@@ -51,7 +51,7 @@ export default function Login() {
           }
           else {
             setCookies(res.data.token),
-            router.replace('/pagina_inicial')
+            router.push('/pagina_inicial')
           }
         }
         ))
@@ -70,7 +70,7 @@ export default function Login() {
         </div>
         <div className="flex flex-col w-full items-center justify-center gap-4">
           <input
-            placeholder="e-mail"
+            placeholder="username"
             className="bg-[#FFFFFF] p-2 rounded-2xl drop-shadow-lg w-11/12 sm:w-4/6 md:w-2/3 text-[#051A29] focus:outline-none"
             {...register("username")}
           ></input>
@@ -90,7 +90,7 @@ export default function Login() {
         </div>
 
         {
-          error && <span className=" text-red-800 text-center text-lg">
+          error && <span className=" text-red-800 text-center text-lg px-4">
             {error}
           </span>
         }
