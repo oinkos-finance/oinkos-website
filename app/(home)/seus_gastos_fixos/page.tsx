@@ -3,8 +3,8 @@
 import {
   formSchemaCreateRecurringTransaction,
   FormValues,
-} from "@/schemas/formSchemaCreateRecurringTransaction]";
-import { createNewRecurringTransaction, findAll } from "@/server/transactionService";
+} from "@/schemas/formSchemaCreateRecurringTransaction";
+import { createNewRecurringTransaction, findAll } from "@/server/services/RecurringTransactionService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Trash } from "lucide-react";
 import React, { useState, ReactChildren } from "react";
@@ -80,7 +80,8 @@ export default function SeusGastosFixos() {
       value: "",
       paymentType: undefined,
       category: "",
-      startingDate: undefined
+      startingDate: undefined,
+      endingDate: undefined
     },
   });
 
@@ -183,29 +184,11 @@ export default function SeusGastosFixos() {
           {errors.category?.message}
         </label>
       </div>
-      {/* <div className="mb-4">
-        <label
-          className="block text-gray-700 text-sm font-bold mb-1"
-          htmlFor="duration"
-        >
-          Duração
-        </label>
-        <select
-          id="duration"
-          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-          {...register("duration")}
-        >
-          <option value="">Selecione um campo</option>
-          <option value="monthly">Mensal</option>
-        </select>
-        <label className="text-red-500 mb-3 text-md">
-          {errors.duration?.message}
-        </label>
-      </div> */}
+  
       <div className="mb-4">  
         <label
           className="block text-gray-700 text-sm font-bold mb-1"
-          htmlFor="data-gasto-fixo">Selecione a data do gasto fixo:</label>
+          htmlFor="data-inicial-gasto-fixo">Selecione a Data Inicial de Recorrência:</label>
         <input 
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
           type="date" 
@@ -214,6 +197,20 @@ export default function SeusGastosFixos() {
         </input>
         <label className="text-red-500 mb-3 text-md">
           {errors.startingDate?.message}
+        </label>              
+      </div>
+      <div className="mb-4">  
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="data-final-gasto-fixo">Selecione a Data de Encerramento das Recorrências:</label>
+        <input 
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+          type="date" 
+          {...register("endingDate")}
+          >
+        </input>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.endingDate?.message}
         </label>              
       </div>
       <div className="w-full mt-2 flex justify-center">

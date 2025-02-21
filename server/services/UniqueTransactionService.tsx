@@ -1,20 +1,13 @@
 import getCookies from "../cookies/getCookies";
+import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
 
-interface Transaction {
-  transactionType: string;
+interface RequestBody {
+  transactionType: "recurring" | "unique";
   title: string;
   value: number;
-  paymentType: string;
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
   category: string;
-}
-
-interface UniqueTransaction extends Transaction {
-  transactionDate: Date;
-}
-
-interface RecurringTransaction extends Transaction {
-  startingDate: Date;
-  endingDate: Date;
+  transactionDate: string;
 }
 
 export const findAll = async () => {
@@ -42,20 +35,21 @@ export const findAll = async () => {
     return await response.json();
 
   } catch (err) {
-    console.error("Erro ao buscar usuário:", err);
+    console.error("Erro ao buscar lista de transações variáveis:", err);
   }
 };
 
-export const createNewRecurringTransaction = async (data) => {
+export const createNewUniqueTransaction = async (data: FormValues) => {
   try {
     const token = await getCookies();
-    const body = {
-      transactionType: "recurring",
+  
+    const body: RequestBody = {
+      transactionType: "unique",
       title: data.description,
       value: Number(data.value.replace(",", ".")),
       paymentType: data.paymentType,
       category: data.category,
-      startingDate: new Date(data.startingDate).toISOString().replace(".000Z", "Z")
+      transactionDate: new Date(data.transactionDate).toISOString().replace(".000Z", "Z"),
     }
 
     const options = {
@@ -73,10 +67,11 @@ export const createNewRecurringTransaction = async (data) => {
       options
     );
 
-    console.log(body);
+    console.log( response)
+
     return await response.json();
 
   } catch (err) {
-    console.error("Erro ao buscar usuário:", err);
+    console.error("Erro ao criar novo gasto variável:", err);
   }
 };

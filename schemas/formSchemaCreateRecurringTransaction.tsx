@@ -17,7 +17,8 @@ export const formSchemaCreateRecurringTransaction = z.object({
     message: "Selecione um dos valores permitidos"
   }),
   category: z.string().nonempty("Campo obrigatório."),
-  startingDate: z.string().nonempty('Data inválida ou formato incorreto')
+  startingDate: z.string().nonempty('Data inválida ou formato incorreto'),
+  endingDate: z.string().nonempty('Data inválida ou formato incorreto')
 });
 
 export type FormValues = z.infer<typeof formSchemaCreateRecurringTransaction>;
