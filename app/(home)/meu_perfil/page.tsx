@@ -32,8 +32,8 @@ export default async function VisualizarPerfil() {
 
                 <div className="flex flex-col md:flex-row w-full gap-6 md:gap-6 lg:gap-8 items-center justify-start ">
                     <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2 ">
-                        <label className="text-black text-start md:text-md text-lg pl-1">Saldo:</label>
-                        <input name="nome" value={data?.balance} className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled />
+                        <label className="text-black text-start md:text-md text-lg pl-1">Salário:</label>
+                        <input name="nome" value={data?.salary} className="bg-white border text-sm p-2 rounded-3xl drop-shadow-md text-[#051A29] focus:outline-none" disabled />
                     </div>
                 </div>
             </div>

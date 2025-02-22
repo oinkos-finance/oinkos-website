@@ -4,8 +4,8 @@ import getCookies from "../cookies/getCookies";
 type User = {
   username: 'string',
   id: string,
-  balance: number,
-  email: string
+  salary: number,
+  email: string,
 }
 
 export default async function getUser(): Promise<User | undefined> {
