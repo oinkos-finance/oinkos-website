@@ -1,14 +1,14 @@
 "use client";
 
-import { FormValues, formSchemaCreateUniqueTransaction } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
 import { Pencil, Trash } from "lucide-react";
-import React, { useState, ReactChildren } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { createNewUniqueTransaction } from "@/server/services/UniqueTransactionService";
+import { SubmitHandler } from "react-hook-form";
+import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
+import { UniqueTransaction } from "@/types/Transactions";
 
 interface ModalProps {
-  children: ReactChildren;
+  children: React.ReactNode;
   onClose: VoidFunction;
   title: string;
 }
@@ -18,66 +18,25 @@ interface FormProps {
 }
 
 export default function SeusGastosVariaveis() {
-  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-
-  const openModalDelete = () => setIsModalDeleteOpen(true);
-  const closeModalDelete = () => setIsModalDeleteOpen(false);
-
-  const openModalAdd = () => setIsModalAddOpen(true);
-  const closeModalAdd = () => setIsModalAddOpen(false);
-
-  const openModalEdit = () => setIsModalEditOpen(true);
-  const closeModalEdit = () => setIsModalEditOpen(false);
-
-  const movements = [
-    {
-      date: "22/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "23/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "fixo",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "24/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-  ];
-
-  const [, setIsSubmitSuccessful] = useState(false);
   const {
-    handleSubmit,
-    register,
-    formState: { errors },
+    openModalEdit,
+    openModalAdd,
+    openModalDelete,
+    isModalAddOpen,
+    isModalDeleteOpen,
+    isModalEditOpen,
+    closeModalAdd,
+    closeModalDelete,
+    closeModalEdit,
+    data,
+    createMutation,
+    hasNextPage,
+    fetchNextPage,
+    errors,
     reset,
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchemaCreateUniqueTransaction),
-    defaultValues: {
-      description: "",
-      value: "",
-      paymentType: undefined,
-      category: "",
-      transactionDate: undefined,
-    },
-  });
-
+    register,
+    handleSubmit,
+  } = useUniqueTransactions();
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -117,17 +76,17 @@ export default function SeusGastosVariaveis() {
       <div className="mb-4">
         <label
           className="block text-gray-700 text-sm font-bold mb-1"
-          htmlFor="description"
+          htmlFor="title"
         >
-          Descrição
+          Título
         </label>
         <input
           id="description"
-          {...register("description")}
+          {...register("title")}
           className="w-full p-2 border rounded-xl text-black focus:outline-none"
         />
         <label className="text-red-500 mb-3 text-md">
-          {errors.description?.message}
+          {errors.title?.message}
         </label>
       </div>
       <div className="mb-4">
@@ -214,8 +173,7 @@ export default function SeusGastosVariaveis() {
           Adicionar
         </button>
       </div>
-
-      {movements && movements.length > 0 ? (
+      {data?.pages ? (
         <div>
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
@@ -229,44 +187,47 @@ export default function SeusGastosVariaveis() {
                   <th className="text-black text-md p-4"></th>
                 </tr>
               </thead>
-              <tbody>
-                {movements.map((movement, index) => (
-                  <tr
-                    key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
-                  >
-                    <td className="text-gray-800 font-bold p-4">
-                      {movement.value}
-                    </td>
-                    <td className="text-gray-600 p-4">
-                      {movement.description}
-                    </td>
-                    <td className="p-4">
-                      <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {movement.format}
-                      </span>
-                    </td>
-                    <td className="text-gray-600 p-4">{movement.category}</td>
+              {data?.pages?.map((page, index) => (
+                <tbody key={index}>
+                  {page.data.map((transaction: UniqueTransaction, index) => (
+                    <tr
+                      key={index}
+                      className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
+                    >
+                      <td className="text-gray-800 font-bold p-4">
+                        {transaction.value}
+                      </td>
+                      <td className="text-gray-600 p-4">
+                        {transaction.title}
+                      </td>
+                      <td className="p-4">
+                        <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
+                          {transaction.paymentType}
+                        </span>
+                      </td>
+                      <td className="text-gray-600 p-4">{transaction.category}</td>
 
-                    <td className="text-gray-600 p-4">{movement.date}</td>
-                    <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
-                      <div
-                        onClick={openModalDelete}
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                      >
-                        <Trash size={18} className=" text-black" />
-                      </div>
-                      <div
-                        onClick={openModalEdit}
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                      >
-                        <Pencil size={18} className=" text-black" />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+                      <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString() }</td>
+                      <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
+                        <div
+                          onClick={openModalDelete}
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        >
+                          <Trash size={18} className=" text-black" />
+                        </div>
+                        <div
+                          onClick={openModalEdit}
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        >
+                          <Pencil size={18} className=" text-black" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
             </table>
+            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -282,10 +243,9 @@ export default function SeusGastosVariaveis() {
         <Modal title="Adicionar Novo Gasto" onClose={closeModalAdd}>
           <Form
             onSubmit={(data) => {
-              setIsSubmitSuccessful(false);
-              createNewUniqueTransaction(data);
-              //reset();
-              setIsModalAddOpen(false);
+              createMutation.mutateAsync(data);
+              reset();
+              closeModalAdd();
             }}
           />
         </Modal>
@@ -296,10 +256,9 @@ export default function SeusGastosVariaveis() {
         <Modal title="Editar Gasto" onClose={closeModalEdit}>
           <Form
             onSubmit={(data) => {
-              setIsSubmitSuccessful(true);
               //createNewRecurringTransaction(data);
               //reset();
-              setIsModalAddOpen(false);
+              closeModalEdit();
             }}
           />
         </Modal>

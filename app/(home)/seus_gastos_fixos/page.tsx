@@ -1,97 +1,49 @@
 "use client";
 
-import {
-  formSchemaCreateRecurringTransaction,
-  FormValues,
-} from "@/schemas/formSchemaCreateRecurringTransaction";
-import { createNewRecurringTransaction, findAll } from "@/server/services/RecurringTransactionService";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useRecurringTransactions } from "@/hooks/useRecurringTransactions";
+import { RecurringTransaction } from "@/types/Transactions";
 import { Pencil, Trash } from "lucide-react";
-import React, { useState, ReactChildren } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
- 
+import React from "react";
+import { SubmitHandler } from "react-hook-form";
+import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
+
 interface ModalProps {
-  children: ReactChildren,
-  onClose: VoidFunction,
-  title: string,
+  children: React.ReactNode;
+  onClose: VoidFunction;
+  title: string;
 }
 
 interface FormProps {
-  onSubmit: SubmitHandler<FormValues>
+  onSubmit: SubmitHandler<FormValues>;
 }
 
 export default function SeusGastosFixos() {
-
-  const [editionData, setEditionData] = useState({})
-
-  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-
-  const openModalDelete = () => setIsModalDeleteOpen(true);
-  const closeModalDelete = () => setIsModalDeleteOpen(false);
-
-  const openModalAdd = () => setIsModalAddOpen(true);
-  const closeModalAdd = () => setIsModalAddOpen(false);
-
-  const openModalEdit = () => setIsModalEditOpen(true);
-  const closeModalEdit = () => setIsModalEditOpen(false);
-
-  const movements = [
-    {
-      date: "22/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "23/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "fixo",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "24/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-  ];
-  
-  const [, setIsSubmitSuccessful] = useState(false);
   const {
-    handleSubmit,
+    handleEdition,
+    openModalAdd,
+    openModalDelete,
+    isModalAddOpen,
+    isModalDeleteOpen,
+    isModalEditOpen,
+    closeModalAdd,
+    closeModalDelete,
+    closeModalEdit,
+    data,
+    hasNextPage,
+    fetchNextPage,
+    createMutation,
+    editMutation,
+    errors,
     register,
-    formState: { errors },
     reset,
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchemaCreateRecurringTransaction),
-    defaultValues: {
-      description: "",
-      value: "",
-      paymentType: undefined,
-      category: "",
-      startingDate: undefined,
-      endingDate: undefined
-    },
-  });
+    handleSubmit
+  } = useRecurringTransactions();
 
-  const Modal = ({ children, onClose, title }: ModalProps ) => (
+  const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg w-[500px] relative">
         <div className="flex bg-fixed_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-          <h2 className="text-lg text-center w-full text-gray-900">
-            {title}
-          </h2>
+          <h2 className="text-lg text-center w-full text-gray-900">{title}</h2>
           <button
             onClick={onClose}
             className="text-gray-900 text-3xl hover:text-gray-700"
@@ -99,10 +51,10 @@ export default function SeusGastosFixos() {
             &times;
           </button>
         </div>
-        { children }
+        {children}
       </div>
     </div>
-  )
+  );
 
   const Form = ({ onSubmit }: FormProps) => (
     <form className="p-5" onSubmit={handleSubmit(onSubmit)}>
@@ -127,15 +79,15 @@ export default function SeusGastosFixos() {
           className="block text-gray-700 text-sm font-bold mb-1"
           htmlFor="description"
         >
-          Descrição
+          Título
         </label>
         <input
-          id="description"
-          {...register("description")}
+          id="title"
+          {...register("title")}
           className="w-full p-2 border rounded-xl text-black focus:outline-none"
         />
         <label className="text-red-500 mb-3 text-md">
-          {errors.description?.message}
+          {errors.title?.message}
         </label>
       </div>
       <div className="mb-4">
@@ -184,45 +136,52 @@ export default function SeusGastosFixos() {
           {errors.category?.message}
         </label>
       </div>
-  
-      <div className="mb-4">  
-        <label
-          className="block text-gray-700 text-sm font-bold mb-1"
-          htmlFor="data-inicial-gasto-fixo">Selecione a Data Inicial de Recorrência:</label>
-        <input 
-          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
-          type="date" 
-          {...register("startingDate")}
-          >
-        </input>
-        <label className="text-red-500 mb-3 text-md">
-          {errors.startingDate?.message}
-        </label>              
-      </div>
-      <div className="mb-4">  
-        <label
-          className="block text-gray-700 text-sm font-bold mb-1"
-          htmlFor="data-final-gasto-fixo">Selecione a Data de Encerramento das Recorrências:</label>
-        <input 
-          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
-          type="date" 
-          {...register("endingDate")}
-          >
-        </input>
-        <label className="text-red-500 mb-3 text-md">
-          {errors.endingDate?.message}
-        </label>              
-      </div>
+      {isModalAddOpen && (
+        <>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-1"
+              htmlFor="data-inicial-gasto-fixo"
+            >
+              Selecione a Data Inicial de Recorrência:
+            </label>
+            <input
+              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+              type="date"
+              {...register("startingDate")}
+            ></input>
+            <label className="text-red-500 mb-3 text-md">
+              {errors.startingDate?.message}
+            </label>
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-1"
+              htmlFor="data-final-gasto-fixo"
+            >
+              Selecione a Data de Encerramento das Recorrências:
+            </label>
+            <input
+              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+              type="date"
+              {...register("endingDate")}
+            ></input>
+            <label className="text-red-500 mb-3 text-md">
+              {errors.endingDate?.message}
+            </label>
+          </div>
+        </>
+      )}
       <div className="w-full mt-2 flex justify-center">
         <button
           type="submit"
           className="bg-[#73B48C] text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]"
         >
-          Criar
+          {isModalAddOpen ? "Adicionar" : "Atualizar"}
         </button>
       </div>
     </form>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
@@ -236,7 +195,7 @@ export default function SeusGastosFixos() {
         </button>
       </div>
 
-      {movements && movements.length > 0 ? (
+      {data?.pages ? (
         <div className="">
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
@@ -250,47 +209,53 @@ export default function SeusGastosFixos() {
                   <th className="text-black text-md p-4"></th>
                 </tr>
               </thead>
-              <tbody>
-                {movements.map((movement, index) => (
-                  <tr
-                    key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
-                  >
-                    <td className="text-gray-800 font-bold p-4">
-                      {movement.value}
-                    </td>
-                    <td className="text-gray-600 p-4 ">
-                      {movement.description}
-                    </td>
-                    <td className="p-4">
-                      <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {movement.format}
-                      </span>
-                    </td>
-                    <td className="text-gray-600 p-4">{movement.category}</td>
-                    <td className="text-gray-600 p-4">
-                      <span className="bg-[#D9D9D9] text-black py-1 px-3 rounded-full">
-                        {movement.duration}
-                      </span>
-                    </td>
-                    <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
-                      <div
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                        onClick={openModalDelete}
-                      >
-                        <Trash size={18} className=" text-black" />
-                      </div>
-                      <div
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                        onClick={openModalEdit}
-                      >
-                        <Pencil size={18} className=" text-black" />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+
+              {data?.pages?.map((page, index) => (
+                <tbody key={index}>
+                  {page.data.map((transaction: RecurringTransaction, index) => (
+                    <tr
+                      key={index}
+                      className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-t-0 text-center"
+                    >
+                      <td className="text-gray-800 font-bold p-4">
+                        {transaction.value}
+                      </td>
+                      <td className="text-gray-600 p-4 ">
+                        {transaction.title}
+                      </td>
+                      <td className="p-4">
+                        <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
+                          {transaction.paymentType}
+                        </span>
+                      </td>
+                      <td className="text-gray-600 p-4">
+                        {transaction.category}
+                      </td>
+                      <td className="text-gray-600 p-4">
+                        <span className="bg-[#D9D9D9] text-black py-1 px-3 rounded-full">
+                          {"Mensal"}
+                        </span>
+                      </td>
+                      <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
+                        <div
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                          onClick={openModalDelete}
+                        >
+                          <Trash size={18} className=" text-black" />
+                        </div>
+                        <div
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                          onClick={() => handleEdition(transaction)}
+                        >
+                          <Pencil size={18} className=" text-black" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
             </table>
+            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -303,48 +268,40 @@ export default function SeusGastosFixos() {
 
       {/* Modal adicionar */}
       {isModalAddOpen && (
-        <Modal 
-          title="Adicionar Novo Gasto Fixo" 
-          onClose={closeModalAdd}
-        >
-          <Form onSubmit={(data) => {
-            setIsSubmitSuccessful(false);
-            createNewRecurringTransaction(data)
-            //reset();
-            setIsModalAddOpen(false);
-          }}/>  
+        <Modal title="Adicionar Novo Gasto Fixo" onClose={closeModalAdd}>
+          <Form
+            onSubmit={(data) => {
+              createMutation.mutateAsync(data);
+              reset();
+              closeModalAdd();
+            }}
+          />
         </Modal>
       )}
 
       {/* Modal editar */}
       {isModalEditOpen && (
-        <Modal 
-          title="Editar Gasto Fixo" 
-          onClose={closeModalEdit}
-          >
-            <Form onSubmit={(data) => {
-            setIsSubmitSuccessful(true);
-            createNewRecurringTransaction(data)
-            //reset();
-            setIsModalAddOpen(false);
-          }}/>
+        <Modal title="Editar Gasto Fixo" onClose={closeModalEdit}>
+          <Form
+            onSubmit={(data) => {
+              editMutation.mutateAsync(data);
+              closeModalEdit();
+            }}
+          />
         </Modal>
       )}
 
       {/* Modal delete */}
       {isModalDeleteOpen && (
-        <Modal 
-          title="Excluir Gasto Fixo"
-          onClose={closeModalDelete}
-        >
+        <Modal title="Excluir Gasto Fixo" onClose={closeModalDelete}>
           <p className="mt-2 text-gray-600 p-5">
-              Deseja excluir esse gasto fixo? Essa ação é irrevertível!
-            </p>
-            <div className="w-full mt-2 flex justify-center">
-              <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
-                Excluir
-              </button>
-            </div>
+            Deseja excluir esse gasto fixo? Essa ação é irrevertível!
+          </p>
+          <div className="w-full mt-2 flex justify-center">
+            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
+              Excluir
+            </button>
+          </div>
         </Modal>
       )}
     </div>
