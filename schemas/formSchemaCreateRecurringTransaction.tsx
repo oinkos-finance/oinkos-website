@@ -2,7 +2,7 @@
 import { z } from "zod";
 
 export const formSchemaCreateRecurringTransaction = z.object({
-  description: z.string().nonempty("Campo obrigatório."),
+  title: z.string().nonempty("Campo obrigatório."),
   value: z
   .string()
   .regex(/^-?\d+,\d{2}$/, "O valor deve estar no formato decimal (ex: 12,90)")
@@ -18,7 +18,7 @@ export const formSchemaCreateRecurringTransaction = z.object({
   }),
   category: z.string().nonempty("Campo obrigatório."),
   startingDate: z.string().nonempty('Data inválida ou formato incorreto'),
-  endingDate: z.string().nonempty('Data inválida ou formato incorreto')
+  endingDate: z.string()
 });
 
 export type FormValues = z.infer<typeof formSchemaCreateRecurringTransaction>;
