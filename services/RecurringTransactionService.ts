@@ -1,7 +1,9 @@
-"use server"
+"use server";
 
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
+import { findAll } from "./CommonTransactionsService";
+import { capitalizeFirstLetter } from "@/util/capitalizeString";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -10,82 +12,52 @@ interface RequestBody {
   paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
   category: string;
   startingDate: string;
-  endingDate: string;
+  endingDate: string | null;
 }
 
-export const findAll = async () => {
-  try {
-
-    const token = await getCookies();
-    const options = {
-      method: "GET",
-      headers: {
-        accept: 'application/json',
-        authorization: `Bearer ${token}`
-      }
-    };
-
-    const response = await fetch(
-      "https://api.oinkos.samnsc.com/transaction?onlyInclude=recurring&startingDate=1737587407&endingDate=1740265864",
-      options
-    );
-
-    const { transactions } = await response.json()
-    return transactions || null
-
-  } catch (err) {
-    console.error("Erro ao buscar lista de transações recorrentes:", err);
-  }
-};
-
 export const infiniteFindAll = async ({ pageParam = 0 }) => {
-  try {
-    const oneMonth = 31 * 24 * 60 * 60;
-    const now = Math.floor(Date.now() / 1000);
+  // buscar po padrão a cada mês
+  const oneMonth = 31 * 24 * 60 * 60;
+  const now = Math.floor(Date.now() / 1000);
 
-    const endingDate = now - pageParam * oneMonth;
-    const startingDate = endingDate - oneMonth;
+  const endingDate = now - pageParam * oneMonth;
+  const startingDate = endingDate - oneMonth;
 
-    const token = await getCookies();
-    const options = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${token}`,
-      },
-    };
+  // função que se repete em cada serviço
+  const transactions = await findAll({
+    onlyInclude: "recurring",
+    startingDate,
+    endingDate,
+  });
 
-    const response = await fetch(
-      `https://api.oinkos.samnsc.com/transaction?onlyInclude=recurring&startingDate=${startingDate}&endingDate=${endingDate}`,
-      options
-    );
+  console.log(transactions)
 
-    const { transactions } = await response.json();
-    const hasMore = transactions.length > 0;
+  const hasMore = transactions.length > 0;
 
-    return {
-      data: transactions,
-      currentPage: pageParam,
-      nextPage: hasMore ? pageParam + 1 : null, 
-    };
-  } catch (err) {
-    console.error("Erro ao buscar lista de transações recorrentes:", err);
-  }
+  return {
+    data: transactions,
+    currentPage: pageParam,
+    nextPage: hasMore ? pageParam + 1 : null,
+  };
 };
 
 export const createNewRecurringTransaction = async (data: FormValues) => {
   try {
     const token = await getCookies();
-  
+
     const body: RequestBody = {
       transactionType: "recurring",
       title: data.title,
       value: Number(data.value.replace(",", ".")),
       paymentType: data.paymentType,
-      category: data.category,
-      startingDate: new Date(data.startingDate).toISOString().replace(".000Z", "Z"),
-      endingDate: data.endingDate ? new Date(data.endingDate).toISOString().replace(".000Z", "Z") : ""
-    }
+      category: capitalizeFirstLetter(data.category.toLowerCase()),
+      startingDate: new Date(data.startingDate)
+        .toISOString()
+        .replace(".000Z", "Z"),
+      endingDate: data.endingDate
+        ? new Date(data.endingDate).toISOString().replace(".000Z", "Z")
+        : null,
+    };
 
     const options = {
       method: "POST",
@@ -102,10 +74,10 @@ export const createNewRecurringTransaction = async (data: FormValues) => {
       options
     );
 
+    console.log(body)
     console.log(response)
 
     return await response.json();
-
   } catch (err) {
     console.error("Erro ao criar novo gasto recorrente:", err);
   }
@@ -115,13 +87,13 @@ export const editRecurringTransaction = async (data: FormValues) => {
   try {
     const token = await getCookies();
 
-    const { title, category, paymentType } = data
+    const { title, category, paymentType } = data;
 
     const body: RequestBody = {
-     title, 
-     category,
-     paymentType
-    }
+      title,
+      category,
+      paymentType,
+    };
 
     const options = {
       method: "PATCH",
@@ -138,10 +110,9 @@ export const editRecurringTransaction = async (data: FormValues) => {
       options
     );
 
-    console.log(response)
+    console.log(response);
 
     return await response.json();
-
   } catch (err) {
     console.error("Erro ao editar gasto recorrente:", err);
   }
@@ -151,14 +122,13 @@ export const deleteRecurringTransaction = async (data: FormValues) => {
   try {
     const token = await getCookies();
 
-
     const options = {
       method: "DELETE",
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`,
-      }
+      },
     };
 
     const response = await fetch(
@@ -166,12 +136,10 @@ export const deleteRecurringTransaction = async (data: FormValues) => {
       options
     );
 
-    console.log(response)
+    console.log(response);
 
     return await response.json();
-
   } catch (err) {
     console.error("Erro ao deletar gasto recorrente:", err);
   }
 };
-

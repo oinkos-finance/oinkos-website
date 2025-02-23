@@ -1,7 +1,9 @@
-"use server"
+"use server";
 
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
+import { findAll } from "./CommonTransactionsService";
+import { capitalizeFirstLetter } from "@/util/capitalizeString";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -13,52 +15,43 @@ interface RequestBody {
 }
 
 export const infiniteFindAll = async ({ pageParam = 0 }) => {
-  try {
-    const oneMonth = 31 * 24 * 60 * 60;
-    const now = Math.floor(Date.now() / 1000);
+  // buscar po padrão a cada mês
+  const oneMonth = 31 * 24 * 60 * 60;
+  const now = Math.floor(Date.now() / 1000);
 
-    const endingDate = now - pageParam * oneMonth;
-    const startingDate = endingDate - oneMonth;
+  const endingDate = now - pageParam * oneMonth;
+  const startingDate = endingDate - oneMonth;
 
-    const token = await getCookies();
-    const options = {
-      method: "GET",
-      headers: {
-        accept: "application/json",
-        authorization: `Bearer ${token}`,
-      },
-    };
+  // função que se repete em cada serviço
+  const transactions = await findAll({
+    onlyInclude: "unique",
+    startingDate,
+    endingDate,
+  });
 
-    const response = await fetch(
-      `https://api.oinkos.samnsc.com/transaction?onlyInclude=unique&startingDate=${startingDate}&endingDate=${endingDate}`,
-      options
-    );
+  const hasMore = transactions.length > 0;
 
-    const { transactions } = await response.json();
-    const hasMore = transactions.length > 0;
-
-    return {
-      data: transactions,
-      currentPage: pageParam,
-      nextPage: hasMore ? pageParam + 1 : null, 
-    };
-  } catch (err) {
-    console.error("Erro ao buscar lista de transações recorrentes:", err);
-  }
+  return {
+    data: transactions,
+    currentPage: pageParam,
+    nextPage: hasMore ? pageParam + 1 : null,
+  };
 };
 
 export const createNewUniqueTransaction = async (data: FormValues) => {
   try {
     const token = await getCookies();
-  
+
     const body: RequestBody = {
       transactionType: "unique",
       title: data.title,
       value: Number(data.value.replace(",", ".")),
       paymentType: data.paymentType,
-      category: data.category,
-      transactionDate: new Date(data.transactionDate).toISOString().replace(".000Z", "Z"),
-    }
+      category: capitalizeFirstLetter(data.category.toLowerCase()),
+      transactionDate: new Date(data.transactionDate)
+        .toISOString()
+        .replace(".000Z", "Z"),
+    };
 
     const options = {
       method: "POST",
@@ -75,10 +68,10 @@ export const createNewUniqueTransaction = async (data: FormValues) => {
       options
     );
 
-    console.log( response)
+    console.log(body)
+    console.log(response)
 
     return await response.json();
-
   } catch (err) {
     console.error("Erro ao criar novo gasto variável:", err);
   }

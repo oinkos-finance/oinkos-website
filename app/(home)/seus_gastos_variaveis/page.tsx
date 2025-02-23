@@ -19,7 +19,7 @@ interface FormProps {
 
 export default function SeusGastosVariaveis() {
   const {
-    openModalEdit,
+    handleEdition,
     openModalAdd,
     openModalDelete,
     isModalAddOpen,
@@ -28,7 +28,7 @@ export default function SeusGastosVariaveis() {
     closeModalAdd,
     closeModalDelete,
     closeModalEdit,
-    data,
+    transactions,
     createMutation,
     hasNextPage,
     fetchNextPage,
@@ -173,7 +173,7 @@ export default function SeusGastosVariaveis() {
           Adicionar
         </button>
       </div>
-      {data?.pages ? (
+      {transactions && transactions.length > 0 ? (
         <div>
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
@@ -187,45 +187,43 @@ export default function SeusGastosVariaveis() {
                   <th className="text-black text-md p-4"></th>
                 </tr>
               </thead>
-              {data?.pages?.map((page, index) => (
-                <tbody key={index}>
-                  {page.data.map((transaction: UniqueTransaction, index) => (
-                    <tr
-                      key={index}
-                      className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
-                    >
-                      <td className="text-gray-800 font-bold p-4">
-                        {transaction.value}
-                      </td>
-                      <td className="text-gray-600 p-4">
-                        {transaction.title}
-                      </td>
-                      <td className="p-4">
-                        <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                          {transaction.paymentType}
-                        </span>
-                      </td>
-                      <td className="text-gray-600 p-4">{transaction.category}</td>
+              <tbody>
+                {transactions?.map((transaction: UniqueTransaction, index) => (
+                  <tr
+                    key={index}
+                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
+                  >
+                    <td className="text-gray-800 font-bold p-4">
+                      {transaction.value}
+                    </td>
+                    <td className="text-gray-600 p-4">
+                      {transaction.title}
+                    </td>
+                    <td className="p-4">
+                      <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
+                        {transaction.paymentType}
+                      </span>
+                    </td>
+                    <td className="text-gray-600 p-4">{transaction.category}</td>
 
-                      <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString() }</td>
-                      <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
-                        <div
-                          onClick={openModalDelete}
-                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                        >
-                          <Trash size={18} className=" text-black" />
-                        </div>
-                        <div
-                          onClick={openModalEdit}
-                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                        >
-                          <Pencil size={18} className=" text-black" />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              ))}
+                    <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString() }</td>
+                    <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
+                      <div
+                        onClick={openModalDelete}
+                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                      >
+                        <Trash size={18} className=" text-black" />
+                      </div>
+                      <div
+                        onClick={() => handleEdition(transaction)}
+                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                      >
+                        <Pencil size={18} className=" text-black" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
             {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>

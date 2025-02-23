@@ -31,6 +31,7 @@ export const useUniqueTransactions = () => {
     register,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaCreateUniqueTransaction),
     defaultValues: {
@@ -41,6 +42,15 @@ export const useUniqueTransactions = () => {
       transactionDate: undefined,
     },
   });
+
+  const handleEdition = (data) => {
+    setValue("title", data.title);
+    setValue("value", data.value.toString().replace(".", ","));
+    setValue("category", data.category);
+    setValue("paymentType", data.paymentType);
+    setValue("transactionDate", data.transactionDate.split("T")[0]);
+    setIsModalEditOpen(true);
+  };
 
   const queryClient = useQueryClient()
 
@@ -58,7 +68,11 @@ export const useUniqueTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] }),
   });
 
+  let transactions = [] 
+  data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
+  
   return {
+    handleEdition,
     isModalAddOpen,
     isModalEditOpen,
     isModalDeleteOpen,
@@ -68,7 +82,7 @@ export const useUniqueTransactions = () => {
     closeModalAdd,
     closeModalEdit,
     closeModalDelete,
-    data,
+    transactions,
     fetchNextPage,
     hasNextPage,
     createMutation,

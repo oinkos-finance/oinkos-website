@@ -4,6 +4,7 @@ export interface Transaction {
   value: number;
   paymentType: string;
   category: string;
+  id: string;
 }
 
 export interface UniqueTransaction extends Transaction {

@@ -55,7 +55,9 @@ export const useRecurringTransactions = () => {
     setValue("value", data.value.toString().replace(".", ","));
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("startingDate", data.transactionDate.split("T")[0]);
+    setValue("startingDate", data.startingDate.split("T")[0]);
+    if(data.endingDate)
+      setValue("endingDate", data.endingDate.split("T")[0]);
     setIsModalEditOpen(true);
   };
 
@@ -89,6 +91,9 @@ export const useRecurringTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
   });
 
+  let transactions = []
+  data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
+
   return {
     isModalDeleteOpen,
     isModalAddOpen,
@@ -99,7 +104,7 @@ export const useRecurringTransactions = () => {
     closeModalAdd,
     handleEdition,
     closeModalEdit,
-    data,
+    transactions,
     fetchNextPage,
     hasNextPage,
     createMutation,

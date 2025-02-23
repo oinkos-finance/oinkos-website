@@ -28,7 +28,7 @@ export default function SeusGastosFixos() {
     closeModalAdd,
     closeModalDelete,
     closeModalEdit,
-    data,
+    transactions,
     hasNextPage,
     fetchNextPage,
     createMutation,
@@ -36,7 +36,7 @@ export default function SeusGastosFixos() {
     errors,
     register,
     reset,
-    handleSubmit
+    handleSubmit,
   } = useRecurringTransactions();
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
@@ -136,9 +136,7 @@ export default function SeusGastosFixos() {
           {errors.category?.message}
         </label>
       </div>
-      {isModalAddOpen && (
-        <>
-          <div className="mb-4">
+      <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-1"
               htmlFor="data-inicial-gasto-fixo"
@@ -170,8 +168,6 @@ export default function SeusGastosFixos() {
               {errors.endingDate?.message}
             </label>
           </div>
-        </>
-      )}
       <div className="w-full mt-2 flex justify-center">
         <button
           type="submit"
@@ -195,7 +191,7 @@ export default function SeusGastosFixos() {
         </button>
       </div>
 
-      {data?.pages ? (
+      {transactions && transactions.length > 0 ? (
         <div className="">
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
@@ -209,10 +205,9 @@ export default function SeusGastosFixos() {
                   <th className="text-black text-md p-4"></th>
                 </tr>
               </thead>
-
-              {data?.pages?.map((page, index) => (
-                <tbody key={index}>
-                  {page.data.map((transaction: RecurringTransaction, index) => (
+              <tbody>
+                {transactions?.map(
+                  (transaction: RecurringTransaction, index) => (
                     <tr
                       key={index}
                       className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-t-0 text-center"
@@ -251,9 +246,9 @@ export default function SeusGastosFixos() {
                         </div>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              ))}
+                  )
+                )}
+              </tbody>
             </table>
             {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
