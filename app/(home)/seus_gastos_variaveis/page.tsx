@@ -1,79 +1,166 @@
 "use client";
 
-import {
-  formSchemaVariableExpenses,
-  FormValues,
-} from "@/schemas/formVariableExpenses";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
+import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
 import { Pencil, Trash } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form";
+import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
+import { UniqueTransaction } from "@/types/Transactions";
+
+interface ModalProps {
+  children: React.ReactNode;
+  onClose: VoidFunction;
+  title: string;
+}
+
+interface FormProps {
+  onSubmit: SubmitHandler<FormValues>;
+}
 
 export default function SeusGastosVariaveis() {
-  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const [isModalAddOpen, setIsModalAddOpen] = useState(false);
-  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-
-  const openModalDelete = () => setIsModalDeleteOpen(true);
-  const closeModalDelete = () => setIsModalDeleteOpen(false);
-
-  const openModalAdd = () => setIsModalAddOpen(true);
-  const closeModalAdd = () => setIsModalAddOpen(false);
-
-  const openModalEdit = () => setIsModalEditOpen(true);
-  const closeModalEdit = () => setIsModalEditOpen(false);
-
-  const movements = [
-    {
-      date: "22/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "23/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "fixo",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-    {
-      date: "24/01/2025",
-      value: "R$ 140,00",
-      description: "Compra de um vestido",
-      format: "pix",
-      type: "variável",
-      category: "Mercado",
-      duration: "Mensal",
-    },
-  ];
-
-  const [, setIsSubmitSuccessful] = useState(false);
   const {
-    handleSubmit,
-    register,
-    formState: { errors },
+    handleEdition,
+    openModalAdd,
+    openModalDelete,
+    isModalAddOpen,
+    isModalDeleteOpen,
+    isModalEditOpen,
+    closeModalAdd,
+    closeModalDelete,
+    closeModalEdit,
+    transactions,
+    createMutation,
+    hasNextPage,
+    fetchNextPage,
+    errors,
     reset,
-  } = useForm<FormValues>({
-    resolver: zodResolver(formSchemaVariableExpenses),
-    defaultValues: {
-      description: "",
-      date: "",
-      value: "",
-    },
-  });
+    register,
+    handleSubmit,
+  } = useUniqueTransactions();
 
-  async function teste() {
-    setIsSubmitSuccessful(true);
-    reset();
-    setIsModalAddOpen(false);
-    setIsModalEditOpen(false);
-  }
+  const Modal = ({ children, onClose, title }: ModalProps) => (
+    <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg w-[500px] relative">
+        <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
+          <h2 className="text-lg text-center w-full text-gray-900">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-900 text-3xl hover:text-gray-700"
+          >
+            &times;
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+
+  const Form = ({ onSubmit }: FormProps) => (
+    <form className="p-5" onSubmit={handleSubmit(onSubmit)}>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="value"
+        >
+          Valor
+        </label>
+        <input
+          id="value"
+          {...register("value")}
+          className="w-full p-2 border rounded-xl text-black focus:outline-none"
+        />
+        <label className="text-red-500 mb-3 text-md">
+          {errors.value?.message}
+        </label>
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="title"
+        >
+          Título
+        </label>
+        <input
+          id="description"
+          {...register("title")}
+          className="w-full p-2 border rounded-xl text-black focus:outline-none"
+        />
+        <label className="text-red-500 mb-3 text-md">
+          {errors.title?.message}
+        </label>
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="format"
+        >
+          Formato
+        </label>
+        <select
+          id="paymentType"
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+          {...register("paymentType")}
+        >
+          <option value="">Selecione um campo</option>
+          <option value="directTransfer">Pix</option>
+          <option value="cash">Dinheiro</option>
+          <option value="creditCard">Crédito</option>
+          <option value="debitCard">Débito</option>
+        </select>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.paymentType?.message}
+        </label>
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="category"
+        >
+          Categoria
+        </label>
+        <select
+          id="category"
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+          {...register("category")}
+        >
+          <option value="">Selecione um campo</option>
+          <option value="Academia">Academia</option>
+          <option value="Aluguel">Aluguel</option>
+          <option value="Roupas">Roupas</option>
+          <option value="Farmácia">Farmácia</option>
+          <option value="Mercado">Mercado</option>
+          <option value="Outros">Outros</option>
+        </select>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.category?.message}
+        </label>
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="data-gasto-fixo"
+        >
+          Selecione a data:
+        </label>
+        <input
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+          type="date"
+          {...register("transactionDate")}
+        ></input>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.transactionDate?.message}
+        </label>
+      </div>
+      <div className="w-full mt-2 flex justify-center">
+        <button
+          type="submit"
+          className="bg-[#73B48C] text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]"
+        >
+          Criar
+        </button>
+      </div>
+    </form>
+  );
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
@@ -86,8 +173,7 @@ export default function SeusGastosVariaveis() {
           Adicionar
         </button>
       </div>
-
-      {movements && movements.length > 0 ? (
+      {transactions && transactions.length > 0 ? (
         <div>
           <div className="overflow-x-auto bg-white rounded-xl mt-6">
             <table className="w-full border-collapse">
@@ -102,25 +188,25 @@ export default function SeusGastosVariaveis() {
                 </tr>
               </thead>
               <tbody>
-                {movements.map((movement, index) => (
+                {transactions?.map((transaction: UniqueTransaction, index) => (
                   <tr
                     key={index}
                     className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
                   >
                     <td className="text-gray-800 font-bold p-4">
-                      {movement.value}
+                      {transaction.value}
                     </td>
                     <td className="text-gray-600 p-4">
-                      {movement.description}
+                      {transaction.title}
                     </td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {movement.format}
+                        {transaction.paymentType}
                       </span>
                     </td>
-                    <td className="text-gray-600 p-4">{movement.category}</td>
+                    <td className="text-gray-600 p-4">{transaction.category}</td>
 
-                    <td className="text-gray-600 p-4">{movement.date}</td>
+                    <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString() }</td>
                     <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
                       <div
                         onClick={openModalDelete}
@@ -129,7 +215,7 @@ export default function SeusGastosVariaveis() {
                         <Trash size={18} className=" text-black" />
                       </div>
                       <div
-                        onClick={openModalEdit}
+                        onClick={() => handleEdition(transaction)}
                         className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
                       >
                         <Pencil size={18} className=" text-black" />
@@ -139,6 +225,7 @@ export default function SeusGastosVariaveis() {
                 ))}
               </tbody>
             </table>
+            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -151,258 +238,42 @@ export default function SeusGastosVariaveis() {
 
       {/* Modal adicionar */}
       {isModalAddOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">
-                Adicionar gasto variável
-              </h2>
-              <button
-                onClick={closeModalAdd}
-                className="text-gray-900 text-3xl hover:text-gray-700"
-              >
-                &times;
-              </button>
-            </div>
-            <form className="p-5" onSubmit={handleSubmit(teste)}>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="value"
-                >
-                  Valor
-                </label>
-                <input
-                  id="value"
-                  {...register("value")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.value?.message}
-                </label>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="description"
-                >
-                  Descrição
-                </label>
-                <input
-                  id="description"
-                  {...register("description")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.description?.message}
-                </label>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="format"
-                >
-                  Formato
-                </label>
-                <select
-                  id="format"
-                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-                >
-                  <option value="pix">Pix</option>
-                  <option value="dinheiro">Dinheiro</option>
-                  <option value="credito">Crédito</option>
-                  <option value="debito">Débito</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="category"
-                >
-                  Categoria
-                </label>
-                <select
-                  id="category"
-                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-                >
-                  <option value="pix">Academia</option>
-                  <option value="dinheiro">Aluguel</option>
-                  <option value="credito">Roupas</option>
-                  <option value="debito">Farmácia</option>
-                  <option value="debito">Mercado</option>
-                  <option value="debito">Outros</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="duration"
-                >
-                  Data
-                </label>
-                <input
-                  id="duration"
-                  {...register("date")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.date?.message}
-                </label>
-              </div>
-              <div className="w-full mt-2 flex justify-center">
-                <button
-                  type="submit"
-                  className="bg-[#73B48C] text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]"
-                >
-                  Criar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <Modal title="Adicionar Novo Gasto" onClose={closeModalAdd}>
+          <Form
+            onSubmit={(data) => {
+              createMutation.mutateAsync(data);
+              reset();
+              closeModalAdd();
+            }}
+          />
+        </Modal>
       )}
 
       {/* Modal editar */}
       {isModalEditOpen && (
-        <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">
-                Editar gasto variável
-              </h2>
-              <button
-                onClick={closeModalEdit}
-                className="text-gray-900 text-3xl hover:text-gray-700"
-              >
-                &times;
-              </button>
-            </div>
-            <form className="p-5" onSubmit={handleSubmit(teste)}>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="value"
-                >
-                  Valor
-                </label>
-                <input
-                  id="value"
-                  {...register("value")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                  placeholder="R$ 120,00"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.value?.message}
-                </label>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="description"
-                >
-                  Descrição
-                </label>
-                <input
-                  id="description"
-                  {...register("description")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                  placeholder="Academia"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.description?.message}
-                </label>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="format"
-                >
-                  Formato
-                </label>
-                <select
-                  id="format"
-                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-                >
-                  <option value="pix">Pix</option>
-                  <option value="dinheiro">Dinheiro</option>
-                  <option value="credito">Crédito</option>
-                  <option value="debito">Débito</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="category"
-                >
-                  Categoria
-                </label>
-                <select
-                  id="category"
-                  className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-                >
-                  <option value="pix">Academia</option>
-                  <option value="dinheiro">Aluguel</option>
-                  <option value="credito">Roupas</option>
-                  <option value="debito">Farmácia</option>
-                  <option value="debito">Mercado</option>
-                  <option value="debito">Outros</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label
-                  className="block text-gray-700 text-sm font-bold mb-1"
-                  htmlFor="duration"
-                >
-                  Data
-                </label>
-                <input
-                  id="duration"
-                  {...register("date")}
-                  className="w-full p-2 border rounded-xl text-black focus:outline-none"
-                  placeholder="14/01/2025"
-                />
-                <label className="text-red-500 mb-3 text-md">
-                  {errors.date?.message}
-                </label>
-              </div>
-              <div className="w-full mt-2 flex justify-center">
-                <button
-                  type="submit"
-                  className="bg-[#73B48C] text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]"
-                >
-                  Editar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <Modal title="Editar Gasto" onClose={closeModalEdit}>
+          <Form
+            onSubmit={(data) => {
+              //createNewRecurringTransaction(data);
+              //reset();
+              closeModalEdit();
+            }}
+          />
+        </Modal>
       )}
 
       {/* Modal delete */}
       {isModalDeleteOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg w-96 relative">
-            <div className="flex bg-variable_outgoing rounded-b-none rounded-lg lg p-3 justify-between items-center border-b pb-3">
-              <h2 className="text-lg text-center w-full text-gray-900">
-                Excluir gasto fixo
-              </h2>
-              <button
-                onClick={closeModalDelete}
-                className="text-gray-900 text-3xl hover:text-gray-700"
-              >
-                &times;
-              </button>
-            </div>
-            <p className="mt-2 text-gray-600 p-5">
-              Deseja excluir esse gasto fixo? Essa ação é irreversível!
-            </p>
-            <div className="w-full mt-2 flex justify-center">
-              <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
-                Excluir
-              </button>
-            </div>
+        <Modal title="Excluir Gasto" onClose={closeModalDelete}>
+          <p className="mt-2 text-gray-600 p-5">
+            Deseja excluir esse gasto? Essa ação é irrevertível!
+          </p>
+          <div className="w-full mt-2 flex justify-center">
+            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
+              Excluir
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );
