@@ -47,6 +47,12 @@ export default function BarChart({ data }: Props) {
       };
 
     return (
-        <Bar height={360} options={options} data={data}/>
+      <>
+        {data ? (
+          <Bar height={360} options={options} data={data}/>
+        ) : (
+          "Carregando"
+        )}
+      </>
     )   
 }

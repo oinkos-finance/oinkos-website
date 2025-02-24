@@ -41,6 +41,14 @@ export default function PieChart({ data }: Props) {
     
 
     return (
-      <Pie height={360} options={options} data={data}/>
+      <>
+        { data ? (
+          <Pie height={360} options={options} data={data}/>
+        )
+        : (
+          "Carregando"
+        )
+        }
+      </>
     )   
 }
