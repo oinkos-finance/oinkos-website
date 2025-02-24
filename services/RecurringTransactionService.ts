@@ -48,7 +48,7 @@ export const createNewRecurringTransaction = async (data: FormValues) => {
     const body: RequestBody = {
       transactionType: "recurring",
       title: data.title,
-      value: Number(data.value.replace(",", ".")),
+      value: Number(data.value),
       paymentType: data.paymentType,
       category: capitalizeFirstLetter(data.category.toLowerCase()),
       startingDate: new Date(data.startingDate)
@@ -83,63 +83,63 @@ export const createNewRecurringTransaction = async (data: FormValues) => {
   }
 };
 
-export const editRecurringTransaction = async (data: FormValues) => {
-  try {
-    const token = await getCookies();
+// export const editRecurringTransaction = async (data: FormValues) => {
+//   try {
+//     const token = await getCookies();
 
-    const { title, category, paymentType } = data;
+//     const { title, category, paymentType } = data;
 
-    const body: RequestBody = {
-      title,
-      category,
-      paymentType,
-    };
+//     const body: RequestBody = {
+//       title,
+//       category,
+//       paymentType,
+//     };
 
-    const options = {
-      method: "PATCH",
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    };
+//     const options = {
+//       method: "PATCH",
+//       headers: {
+//         accept: "application/json",
+//         "Content-Type": "application/json",
+//         authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify(body),
+//     };
 
-    const response = await fetch(
-      "https://api.oinkos.samnsc.com/transaction",
-      options
-    );
+//     const response = await fetch(
+//       "https://api.oinkos.samnsc.com/transaction",
+//       options
+//     );
 
-    console.log(response);
+//     console.log(response);
 
-    return await response.json();
-  } catch (err) {
-    console.error("Erro ao editar gasto recorrente:", err);
-  }
-};
+//     return await response.json();
+//   } catch (err) {
+//     console.error("Erro ao editar gasto recorrente:", err);
+//   }
+// };
 
-export const deleteRecurringTransaction = async (data: FormValues) => {
-  try {
-    const token = await getCookies();
+// export const deleteRecurringTransaction = async (data: FormValues) => {
+//   try {
+//     const token = await getCookies();
 
-    const options = {
-      method: "DELETE",
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        authorization: `Bearer ${token}`,
-      },
-    };
+//     const options = {
+//       method: "DELETE",
+//       headers: {
+//         accept: "application/json",
+//         "Content-Type": "application/json",
+//         authorization: `Bearer ${token}`,
+//       },
+//     };
 
-    const response = await fetch(
-      "https://api.oinkos.samnsc.com/transaction",
-      options
-    );
+//     const response = await fetch(
+//       "https://api.oinkos.samnsc.com/transaction",
+//       options
+//     );
 
-    console.log(response);
+//     console.log(response);
 
-    return await response.json();
-  } catch (err) {
-    console.error("Erro ao deletar gasto recorrente:", err);
-  }
-};
+//     return await response.json();
+//   } catch (err) {
+//     console.error("Erro ao deletar gasto recorrente:", err);
+//   }
+// };

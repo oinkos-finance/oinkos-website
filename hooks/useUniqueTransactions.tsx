@@ -8,8 +8,16 @@ import { infiniteFindAll } from "@/services/UniqueTransactionService";
 import { createNewUniqueTransaction } from "@/services/UniqueTransactionService";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
+type UniqueTransaction = {
+  title: string,
+  value: number,
+  category: string,
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
+  transactionDate: string
+}
 
 export const useUniqueTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -25,6 +33,8 @@ export const useUniqueTransactions = () => {
   const openModalEdit = () => setIsModalEditOpen(true);
   const closeModalEdit = () => setIsModalEditOpen(false);
 
+  const [initialData, setInitialData] = useState<UniqueTransaction | null>(null)
+
   const [, setIsSubmitSuccessful] = useState(false);
   const {
     handleSubmit,
@@ -36,21 +46,35 @@ export const useUniqueTransactions = () => {
     resolver: zodResolver(formSchemaCreateUniqueTransaction),
     defaultValues: {
       title: "",
-      value: "",
+      value: undefined,
       paymentType: undefined,
       category: "",
       transactionDate: undefined,
     },
   });
 
-  const handleEdition = (data) => {
+  const handleEdition = (data: UniqueTransaction) => {
     setValue("title", data.title);
-    setValue("value", data.value.toString().replace(".", ","));
+    setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
     setValue("transactionDate", data.transactionDate.split("T")[0]);
     setIsModalEditOpen(true);
   };
+
+  const handleEditionInitial = (data: UniqueTransaction) => {
+    setValue("title", data.title);
+    setValue("value", data.value);
+    setValue("category", data.category);
+    setValue("paymentType", data.paymentType);
+    setValue("transactionDate", data.transactionDate.split("T")[0]);
+    setIsModalEditOpen(true);
+    setInitialData(data)
+  }
+
+  useEffect(() => {
+    console.log(initialData, 'atualizado');
+  }, [initialData]);
 
   const queryClient = useQueryClient()
 
@@ -68,9 +92,9 @@ export const useUniqueTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] }),
   });
 
-  let transactions = [] 
-  data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
-  
+  let transactions: any[] = []
+  data?.pages.forEach(({ data }) => data.forEach((t: any) => transactions.push(t)))
+
   return {
     handleEdition,
     isModalAddOpen,
@@ -90,5 +114,7 @@ export const useUniqueTransactions = () => {
     reset,
     errors,
     register,
+    initialData,
+    handleEditionInitial
   };
 };

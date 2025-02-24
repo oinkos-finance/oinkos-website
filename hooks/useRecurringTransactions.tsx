@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   createNewRecurringTransaction,
-  editRecurringTransaction,
+  //editRecurringTransaction,
   infiniteFindAll,
 } from "@/services/RecurringTransactionService";
 import {
@@ -16,10 +16,21 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+
+type RecurringTransaction = {
+  title: string,
+  value: number,
+  category: string,
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
+  startingDate: string,
+  endingDate: string,
+}
+
 export const useRecurringTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+  const [initialData, setInitialData] = useState< RecurringTransaction | null>(null)
 
   const queryClient = useQueryClient();
 
@@ -33,7 +44,7 @@ export const useRecurringTransactions = () => {
     resolver: zodResolver(formSchemaCreateRecurringTransaction),
     defaultValues: {
       title: "",
-      value: "",
+      value: undefined,
       paymentType: undefined,
       category: "",
       startingDate: "",
@@ -50,15 +61,27 @@ export const useRecurringTransactions = () => {
   };
   const closeModalAdd = () => setIsModalAddOpen(false);
 
-  const handleEdition = (data) => {
+  const handleEdition = (data: RecurringTransaction) => {
     setValue("title", data.title);
-    setValue("value", data.value.toString().replace(".", ","));
+    setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
     setValue("startingDate", data.startingDate.split("T")[0]);
     if(data.endingDate)
       setValue("endingDate", data.endingDate.split("T")[0]);
     setIsModalEditOpen(true);
+  };
+
+  const handleEditionInitial = (data: RecurringTransaction) => {
+    setValue("title", data.title);
+    setValue("value", data.value);
+    setValue("category", data.category);
+    setValue("paymentType", data.paymentType);
+    setValue("startingDate", data.startingDate.split("T")[0]);
+    if(data.endingDate)
+      setValue("endingDate", data.endingDate.split("T")[0]);
+    setIsModalEditOpen(true);
+    setInitialData(data)
   };
 
   const closeModalEdit = () => setIsModalEditOpen(false);
@@ -76,9 +99,9 @@ export const useRecurringTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
   });
 
-  const editMutation = useMutation({
-    mutationFn: editRecurringTransaction,
-    // TODO: aqui no delete eh so receber o objeto alterado e atualizar ele aq
+  // const editMutation = useMutation({
+  //   mutationFn: editRecurringTransaction,
+  //   // TODO: aqui no delete eh so receber o objeto alterado e atualizar ele aq
     /* onSuccess: (data) => {
           queryClient.setQueryData(["recurringTransactions"], (cache: RecurringTransaction[] | undefined) => {
             
@@ -87,12 +110,12 @@ export const useRecurringTransactions = () => {
             return c;
           })
         } */
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
-  });
+  //   onSuccess: () =>
+  //     queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
+  // });
 
-  let transactions = []
-  data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
+  let transactions: any[] = []
+  data?.pages.forEach(({ data }) => data.forEach( (t: any)  => transactions.push(t)))
 
   return {
     isModalDeleteOpen,
@@ -108,11 +131,13 @@ export const useRecurringTransactions = () => {
     fetchNextPage,
     hasNextPage,
     createMutation,
-    editMutation,
+    //editMutation,
     handleSubmit,
     setValue,
     reset,
     errors,
     register,
+    initialData,
+    handleEditionInitial
   };
 };

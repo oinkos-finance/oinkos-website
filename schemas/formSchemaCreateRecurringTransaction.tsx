@@ -4,12 +4,12 @@ import { z } from "zod";
 export const formSchemaCreateRecurringTransaction = z.object({
   title: z.string().nonempty("Campo obrigatório."),
   value: z
-  .string()
-  .regex(/^-?\d+,\d{2}$/, "O valor deve estar no formato decimal (ex: 12,90)")
-  .refine((value) => {
-    const numericValue = Number(value.replace(',', '.'));
-    return numericValue >= 0; 
-  }, {
+  .union([
+    z.string().regex(/^\d+(\.\d{1,2})?$/, "Digite um número válido (números inteiros ou decimal com o ponto como separador)."),
+    z.number(),
+  ])
+  .transform((value) => (typeof value === "string" ? parseFloat(value) : value))
+  .refine((value) => value >= 0, {
     message: "O número deve ser positivo.",
   }),
   paymentType: z.enum(["directTransfer", "cash", "creditCard", "debitCard"], {
