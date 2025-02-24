@@ -11,6 +11,7 @@ export const infiniteFindAll = async ({ pageParam }, period) => {
 
   // função que se repete em cada serviço
   const transactions = await findAll({
+    onlyInclude: null,
     startingDate,
     endingDate,
   });
@@ -24,7 +25,13 @@ export const infiniteFindAll = async ({ pageParam }, period) => {
   };
 };
 
-export const findAll = async (params) => {
+interface Params {
+  onlyInclude: string | null;
+  startingDate: string | number | null;
+  endingDate: string | number | null;
+}
+
+export const findAll = async (params: Params) => {
   try {
     const token = await getCookies();
     const options = {
@@ -54,6 +61,6 @@ export const findAll = async (params) => {
     return transactions || null;
 
   } catch (err) {
-    console.error("Erro ao buscar lista de transações recorrentes:", err);
+    console.error("Erro ao buscar lista de transações:", err);
   }
 };

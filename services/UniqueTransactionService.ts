@@ -3,7 +3,7 @@
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
 import { findAll } from "./CommonTransactionsService";
-import { capitalizeFirstLetter } from "@/util/capitalizeString";
+import { capitalizeFirstLetter } from "@/util/String";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
