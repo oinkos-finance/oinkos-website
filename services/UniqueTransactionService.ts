@@ -45,7 +45,7 @@ export const createNewUniqueTransaction = async (data: FormValues) => {
     const body: RequestBody = {
       transactionType: "unique",
       title: data.title,
-      value: Number(data.value.replace(",", ".")),
+      value: Number(data.value),
       paymentType: data.paymentType,
       category: capitalizeFirstLetter(data.category.toLowerCase()),
       transactionDate: new Date(data.transactionDate)

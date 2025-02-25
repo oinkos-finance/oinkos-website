@@ -51,7 +51,7 @@ export default function BarChart({ data }: Props) {
         {data ? (
           <Bar height={360} options={options} data={data}/>
         ) : (
-          "Carregando"
+          <h3 className="text-black">Carregando</h3>
         )}
       </>
     )   

@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
 import { ChevronDown, Pencil, Trash } from "lucide-react";
 import { SubmitHandler } from "react-hook-form";
 import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
-import { UniqueTransaction } from "@/types/Transactions";
+import getCookies from "@/server/cookies/getCookies";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -15,9 +16,33 @@ interface ModalProps {
 
 interface FormProps {
   onSubmit: SubmitHandler<FormValues>;
+  buttonText: string
+}
+
+type UniqueTransaction = {
+  // id: string,
+  title: string,
+  value: number,
+  category: string,
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
+  transactionDate: string
+}
+
+type UniqueTransactionId = {
+  id: string,
+  title: string,
+  value: number,
+  category: string,
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
+  transactionDate: string
 }
 
 export default function SeusGastosVariaveis() {
+  const [, setError] = useState<string | null>(null)
+  const [, setIsSubmitSuccessful] = useState<boolean>(false)
+  const [teste, setTeste] = useState<UniqueTransaction | null>()
+  const [id, setId] = useState<string>('')
+  const queryClient = useQueryClient();
   const {
     handleEdition,
     openModalAdd,
@@ -37,6 +62,8 @@ export default function SeusGastosVariaveis() {
     register,
     handleSubmit,
     categories,
+    initialData,
+    handleEditionInitial,
   } = useUniqueTransactions();
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
@@ -56,7 +83,7 @@ export default function SeusGastosVariaveis() {
     </div>
   );
 
-  const Form = ({ onSubmit }: FormProps) => (
+  const Form = ({ onSubmit, buttonText }: FormProps) => (
     <form className="p-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-4">
         <label
@@ -152,16 +179,113 @@ export default function SeusGastosVariaveis() {
           {errors.transactionDate?.message}
         </label>
       </div>
+      
       <div className="w-full mt-2 flex justify-center">
         <button
           type="submit"
           className="bg-[#73B48C] text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]"
         >
-          Criar
+          {buttonText}
         </button>
       </div>
     </form>
   );
+
+
+  useEffect(() => {
+    console.log(teste, 'aqui')
+  }, [teste])
+
+  async function editInformation(data: FormValues) {
+
+    const formattedData = {
+      ...data,
+      transactionDate: new Date(data.transactionDate).toISOString().split("T")[0] + "T00:00:00Z"
+    };
+
+    setIsSubmitSuccessful(false)
+    setError(null)
+
+    if (!initialData)
+      return
+
+    const updatedFields = Object.fromEntries(
+      Object.entries(formattedData).filter(([key, value]) => {
+        return value !== initialData[key as keyof UniqueTransaction];
+      })
+    );
+
+    if (Object.keys(updatedFields).length === 0) {
+      console.log("Nenhuma alteração detectada.");
+      return;
+    }
+
+    const token = await getCookies()
+    const options = {
+      method: 'PATCH',
+      headers: {
+        accept: 'application/json', 'content-type': 'application/json',
+        authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedFields),
+    };
+
+    console.log("Enviando para a API:", options.body);
+    fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
+      .then(res => res.json().then(data => ({ status: res.status, data }))
+        .then(async res => {
+          console.log(res, 'teste')
+
+          if (res.status === 400)
+            setError('Sintaxe de resposta mal formatada. Verifique se os dados estão corretos')
+          else if (res.status === 404)
+            setError('Transação não encontrada.')
+          else if (res.status === 422)
+            setError('Valores inválidos.')
+          else if (res.status === 500)
+            setError('Erro interno no servidor.')
+          else {
+            setIsSubmitSuccessful(true)
+            reset()
+            console.log("sucesso!")
+
+          }
+
+        })
+        .catch(err => console.error(err)))
+        .finally(() => queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] }))
+  }
+
+  async function deleteTransaction(id: string) {
+
+    const token = await getCookies()
+    const options = {
+      method: 'DELETE',
+      headers: {
+        accept: 'application/json', 'content-type': 'application/json',
+        authorization: `Bearer ${token}`
+      },
+    };
+
+    fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
+      .then(res => res.json().then(data => ({ status: res.status, data }))
+        .then(async res => {
+          console.log(res, 'teste')
+
+          if (res.status === 404)
+            setError('Transação não encontrada.')
+          else if (res.status === 500)
+            setError('Erro interno no servidor.')
+          else {
+            setIsSubmitSuccessful(true)
+            reset()
+            console.log("sucesso!")
+          }
+
+        })
+        .catch(err => console.error(err)))
+        .finally(() => queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] }))
+  }
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
@@ -189,7 +313,7 @@ export default function SeusGastosVariaveis() {
                 </tr>
               </thead>
               <tbody>
-                {transactions?.map((transaction: UniqueTransaction, index) => (
+                {transactions?.map((transaction: UniqueTransactionId, index) => (
                   <tr
                     key={index}
                     className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
@@ -206,21 +330,16 @@ export default function SeusGastosVariaveis() {
                     <td className="text-gray-600 p-4">
                       {transaction.category}
                     </td>
-
-                    <td className="text-gray-600 p-4">
-                      {new Date(
-                        transaction.transactionDate
-                      ).toLocaleDateString()}
-                    </td>
+                    <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString()}</td>
                     <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
                       <div
-                        onClick={openModalDelete}
+                        onClick={() => { openModalDelete(); setId(transaction.id) }}
                         className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
                       >
                         <Trash size={18} className=" text-black" />
                       </div>
                       <div
-                        onClick={() => handleEdition(transaction)}
+                        onClick={() => { handleEditionInitial(transaction); setId(transaction.id) }}
                         className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
                       >
                         <Pencil size={18} className=" text-black" />
@@ -230,7 +349,7 @@ export default function SeusGastosVariaveis() {
                 ))}
               </tbody>
             </table>
-            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
+            {hasNextPage && <button onClick={() => fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -250,6 +369,7 @@ export default function SeusGastosVariaveis() {
               reset();
               closeModalAdd();
             }}
+            buttonText="Criar"
           />
         </Modal>
       )}
@@ -259,10 +379,11 @@ export default function SeusGastosVariaveis() {
         <Modal title="Editar Gasto" onClose={closeModalEdit}>
           <Form
             onSubmit={(data) => {
-              //createNewRecurringTransaction(data);
+              editInformation(data);
+              handleEdition(data)
               //reset();
               closeModalEdit();
-            }}
+            }} buttonText="Editar"
           />
         </Modal>
       )}
@@ -274,7 +395,7 @@ export default function SeusGastosVariaveis() {
             Deseja excluir esse gasto? Essa ação é irrevertível!
           </p>
           <div className="w-full mt-2 flex justify-center">
-            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
+            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition" onClick={() => { deleteTransaction(id); closeModalDelete() }}>
               Excluir
             </button>
           </div>

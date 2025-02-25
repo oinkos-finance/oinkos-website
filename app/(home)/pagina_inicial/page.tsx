@@ -13,8 +13,6 @@ export default function PaginaInicial() {
   const { nextRecurringTransactions } = useRecurringTransactions();
   const { totalSum } = useTransactions();
 
-  console.log(nextRecurringTransactions);
-
   return (
     <div className="w-full flex flex-col gap-10 justify-center">
       <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
@@ -41,7 +39,7 @@ export default function PaginaInicial() {
                 <TransactionCard
                 key={key}
                 category={transaction.category}
-                date={new Date(transaction.startingDate).toLocaleDateString() + " " + new Date(transaction.endingDate).toLocaleDateString()}
+                date={new Date(transaction.startingDate).toLocaleDateString()}
                 value={transaction.value}
                 />
             )

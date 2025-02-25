@@ -39,10 +39,9 @@ export default function PieChart({ data }: Props) {
       maintainAspectRatio: false, 
     };
     
-
     return (
       <>
-        { data ? (
+        { data?.datasets[0].data.length ? (
           <Pie height={360} options={options} data={data}/>
         )
         : (
