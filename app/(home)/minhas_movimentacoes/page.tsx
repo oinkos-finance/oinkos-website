@@ -2,6 +2,7 @@
 
 import { useTransactions } from "@/hooks/useTransactions";
 import { Transaction } from "@/types/Transactions";
+import { PeriodConstants } from "@/util/Constants";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 
@@ -34,8 +35,8 @@ export default function MinhasMovimentacoes() {
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           onClick={({ target }) => setPeriod(target.value)}
         >
-          <option value="7">Uma semana</option>
-          <option value="31">Um mês</option>
+          <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
+          <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
         </select>
       </div>
       {transactions ? (

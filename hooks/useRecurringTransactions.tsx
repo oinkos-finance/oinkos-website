@@ -2,11 +2,13 @@ import { useState } from "react";
 import {
   createNewRecurringTransaction,
   editRecurringTransaction,
+  getNextRecurringTransactions,
   infiniteFindAll,
 } from "@/services/RecurringTransactionService";
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import {
@@ -15,6 +17,7 @@ import {
 } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { getCategories } from "@/services/CommonTransactionsService";
 
 export const useRecurringTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -94,6 +97,16 @@ export const useRecurringTransactions = () => {
   let transactions = []
   data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
 
+  const { data: categories } = useQuery({
+    queryKey: ["getCategories"],
+    queryFn: getCategories
+  })
+
+  const { data: nextRecurringTransactions } = useQuery({
+    queryKey: [""],
+    queryFn: getNextRecurringTransactions
+  })
+
   return {
     isModalDeleteOpen,
     isModalAddOpen,
@@ -105,6 +118,7 @@ export const useRecurringTransactions = () => {
     handleEdition,
     closeModalEdit,
     transactions,
+    nextRecurringTransactions,
     fetchNextPage,
     hasNextPage,
     createMutation,
@@ -114,5 +128,6 @@ export const useRecurringTransactions = () => {
     reset,
     errors,
     register,
+    categories
   };
 };

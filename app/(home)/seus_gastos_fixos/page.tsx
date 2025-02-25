@@ -37,6 +37,7 @@ export default function SeusGastosFixos() {
     register,
     reset,
     handleSubmit,
+    categories
   } = useRecurringTransactions();
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
@@ -119,19 +120,19 @@ export default function SeusGastosFixos() {
         >
           Categoria
         </label>
-        <select
-          id="category"
+        <input
+          type="text"
+          list="categories"
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           {...register("category")}
-        >
-          <option value="">Selecione um campo</option>
-          <option value="Academia">Academia</option>
-          <option value="Aluguel">Aluguel</option>
-          <option value="Roupas">Roupas</option>
-          <option value="Farmácia">Farmácia</option>
-          <option value="Mercado">Mercado</option>
-          <option value="Outros">Outros</option>
-        </select>
+        />
+        <datalist id="categories">
+          {categories.map((category: string, i: number) => (
+            <option key={i} value={category} onClick={register("category")}>
+              {category}
+            </option>
+          ))}
+        </datalist>
         <label className="text-red-500 mb-3 text-md">
           {errors.category?.message}
         </label>

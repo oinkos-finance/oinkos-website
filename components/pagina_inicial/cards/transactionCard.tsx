@@ -1,0 +1,15 @@
+interface Props {
+    category: string;
+    date: string;
+    value: number
+}
+
+export default function TransactionCard({ category, date, value }: Props){
+    return(
+        <div className="bg-white flex flex-col gap-1 rounded-xl border md:px-8 lg:px-12 xl:px-16 px-16 py-4 drop-shadow-lg">
+            <h1 className="text-black font-semibold">{ category }</h1>
+            <h3 className="text-black">Vencimento: { date }</h3>
+            <h3 className="text-black">R$ { value }</h3>
+        </div>
+    )
+}

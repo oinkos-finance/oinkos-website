@@ -34,7 +34,6 @@ export default function Relatorios() {
           <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
         </select>
       </div>
-
       <section className="my-2">
         <h3 className="text-gray-900 text-xl ">Gastos por Categorias</h3>
         <div className="flex justify-end w-full max-h-[480px]">

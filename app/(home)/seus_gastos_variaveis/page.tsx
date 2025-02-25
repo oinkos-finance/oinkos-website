@@ -2,7 +2,7 @@
 
 import React from "react";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { Pencil, Trash } from "lucide-react";
+import { ChevronDown, Pencil, Trash } from "lucide-react";
 import { SubmitHandler } from "react-hook-form";
 import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
 import { UniqueTransaction } from "@/types/Transactions";
@@ -36,6 +36,7 @@ export default function SeusGastosVariaveis() {
     reset,
     register,
     handleSubmit,
+    categories,
   } = useUniqueTransactions();
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
@@ -118,19 +119,19 @@ export default function SeusGastosVariaveis() {
         >
           Categoria
         </label>
-        <select
-          id="category"
+        <input
+          type="text"
+          list="categories"
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           {...register("category")}
-        >
-          <option value="">Selecione um campo</option>
-          <option value="Academia">Academia</option>
-          <option value="Aluguel">Aluguel</option>
-          <option value="Roupas">Roupas</option>
-          <option value="Farmácia">Farmácia</option>
-          <option value="Mercado">Mercado</option>
-          <option value="Outros">Outros</option>
-        </select>
+        />
+        <datalist id="categories">
+          {categories.map((category: string, i: number) => (
+            <option key={i} value={category} onClick={register("category")}>
+              {category}
+            </option>
+          ))}
+        </datalist>
         <label className="text-red-500 mb-3 text-md">
           {errors.category?.message}
         </label>
@@ -196,17 +197,21 @@ export default function SeusGastosVariaveis() {
                     <td className="text-gray-800 font-bold p-4">
                       {transaction.value}
                     </td>
-                    <td className="text-gray-600 p-4">
-                      {transaction.title}
-                    </td>
+                    <td className="text-gray-600 p-4">{transaction.title}</td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
                         {transaction.paymentType}
                       </span>
                     </td>
-                    <td className="text-gray-600 p-4">{transaction.category}</td>
+                    <td className="text-gray-600 p-4">
+                      {transaction.category}
+                    </td>
 
-                    <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString() }</td>
+                    <td className="text-gray-600 p-4">
+                      {new Date(
+                        transaction.transactionDate
+                      ).toLocaleDateString()}
+                    </td>
                     <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
                       <div
                         onClick={openModalDelete}

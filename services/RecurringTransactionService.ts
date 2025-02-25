@@ -4,6 +4,7 @@ import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { findAll } from "./CommonTransactionsService";
 import { capitalizeFirstLetter } from "@/util/String";
+import { findAllByPeriod } from "./ChartsService";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -143,3 +144,22 @@ export const deleteRecurringTransaction = async (data: FormValues) => {
     console.error("Erro ao deletar gasto recorrente:", err);
   }
 };
+
+export const getNextRecurringTransactions = async () => {
+  try {
+    
+    const startingDate = Math.floor(Date.now() / 1000);
+    const endingDate = startingDate + 7 * 24 * 60 * 60
+
+    const transactions = await findAll({
+      onlyInclude: "recurring",
+      startingDate,
+      endingDate,
+    })
+    
+    return transactions || null;
+
+  } catch (err) {
+    console.error("Erro ao buscar lista de transações:", err);
+  }
+}

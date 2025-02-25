@@ -4,10 +4,11 @@ import {
   FormValues,
   formSchemaCreateUniqueTransaction,
 } from "@/schemas/formSchemaCreateUniqueTransaction";
+import { getCategories } from "@/services/CommonTransactionsService";
 import { infiniteFindAll } from "@/services/UniqueTransactionService";
 import { createNewUniqueTransaction } from "@/services/UniqueTransactionService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -71,6 +72,11 @@ export const useUniqueTransactions = () => {
   let transactions = [] 
   data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
   
+  const { data: categories } = useQuery({
+    queryKey: ["getCategories"],
+    queryFn: getCategories
+  })
+
   return {
     handleEdition,
     isModalAddOpen,
@@ -90,5 +96,6 @@ export const useUniqueTransactions = () => {
     reset,
     errors,
     register,
+    categories
   };
 };

@@ -1,11 +1,12 @@
 import { infiniteFindAll } from "@/services/CommonTransactionsService";
+import { PeriodConstants } from "@/util/Constants";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export const useTransactions = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [period, setPeriod] = useState(7);
+  const [period, setPeriod] = useState(PeriodConstants.ONE_MONTH);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -25,6 +26,11 @@ export const useTransactions = () => {
   let recurringTransactionsNumber = transactions.filter(transaction => transaction.transactionType == "recurring").length
   let uniqueTransactionsNumber = transactions.length - recurringTransactionsNumber
 
+  const totalSum = transactions
+    .reduce(
+    (acc, transaction: Transaction) => acc + transaction.value, 0
+  )
+
   return {
     recurringTransactionsNumber,
     uniqueTransactionsNumber,
@@ -34,6 +40,7 @@ export const useTransactions = () => {
     setPeriod,
     openModal,
     closeModal,
-    isModalOpen
+    isModalOpen,
+    totalSum
   };
 };

@@ -1,10 +1,11 @@
 import { generateBarChartData, generateLineChartData, generatePieChartData } from "@/services/ChartsService"
+import { PeriodConstants } from "@/util/Constants"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 
 export const useTransactionReport = () => {
   
-  const [period, setPeriod] = useState(1)
+  const [period, setPeriod] = useState(PeriodConstants.ONE_MONTH)
   
   const { data: pieChartData } = useQuery({
     queryKey: ['getPieChartData', period],
