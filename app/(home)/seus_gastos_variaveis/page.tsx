@@ -288,7 +288,6 @@ export default function SeusGastosVariaveis() {
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-3xl text-black mb-6">Seus Gastos Variáveis</h1>
 
         <div className="mb-4">
           <input
@@ -313,17 +312,18 @@ export default function SeusGastosVariaveis() {
               <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
             </select>
 
-            <div className="flex items-center gap-10">
-              <button onClick={decrementPage}>AVANÇAR</button>
-              <button onClick={incrementPage}>VOLTAR</button>
+            <div className="flex items-center gap-10 mt-2 mb-2">
+              <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
+              <button onClick={incrementPage} className=" bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
             </div>
             <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
           </div>
         </div>
 
+        <h1 className="text-3xl text-black mb-6">Seus Gastos Variáveis</h1>
         <button
           onClick={openModalAdd}
-          className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
+          className="bg-[#B6C8C6] text-black text-lg px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
         >
           Adicionar
         </button>
@@ -355,7 +355,10 @@ export default function SeusGastosVariaveis() {
                       <td className="text-gray-600 p-4">{transaction.title}</td>
                       <td className="p-4">
                         <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                          {transaction.paymentType}
+                          {transaction.paymentType === 'directTransfer' ? 'Pix' : 
+                        transaction.paymentType === 'creditCard' ? 'Crédito' :
+                        transaction.paymentType === 'debitCard' ? 'Débito' :
+                        'Dinheiro'}
                         </span>
                       </td>
                       <td className="text-gray-600 p-4">

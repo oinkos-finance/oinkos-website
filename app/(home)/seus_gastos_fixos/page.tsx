@@ -341,9 +341,9 @@ export default function SeusGastosFixos() {
               <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
             </select>
 
-            <div className="flex items-center gap-10">
-              <button onClick={decrementPage}>AVANÇAR</button>
-              <button onClick={incrementPage}>VOLTAR</button>
+            <div className="flex items-center gap-10 mt-2 mb-2">
+              <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
+              <button onClick={incrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
             </div>
             <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
           </div>
@@ -352,7 +352,7 @@ export default function SeusGastosFixos() {
         <h1 className="text-3xl text-black mb-6">Seus Gastos Fixos</h1>
         <button
           onClick={openModalAdd}
-          className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
+          className="bg-[#B6C8C6] text-black text-lg px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
         >
           Adicionar
         </button>
@@ -387,7 +387,10 @@ export default function SeusGastosFixos() {
                       </td>
                       <td className="p-4">
                         <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                          {transaction.paymentType}
+                          {transaction.paymentType === 'directTransfer' ? 'Pix' : 
+                        transaction.paymentType === 'creditCard' ? 'Crédito' :
+                        transaction.paymentType === 'debitCard' ? 'Débito' :
+                        'Dinheiro'}
                         </span>
                       </td>
                       <td className="text-gray-600 p-4">

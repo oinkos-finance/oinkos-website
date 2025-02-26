@@ -51,9 +51,9 @@ export default function MinhasMovimentacoes() {
           <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
         </select>
 
-        <div className="flex items-center gap-10">
-          <button onClick={decrementPage}>AVANÇAR</button>
-          <button onClick={incrementPage}>VOLTAR</button>
+        <div className="flex items-center gap-10 mt-2">
+          <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
+          <button onClick={incrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
         </div>
         <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
 
@@ -124,7 +124,11 @@ export default function MinhasMovimentacoes() {
                     <td className="text-gray-600 p-4">{transaction.title}</td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {transaction.paymentType}
+                        {transaction.paymentType === 'directTransfer' ? 'Pix' : 
+                        transaction.paymentType === 'creditCard' ? 'Crédito' :
+                        transaction.paymentType === 'debitCard' ? 'Débito' :
+                        'Dinheiro'
+                        }
                       </span>
                     </td>
                     <td className="p-4">
@@ -135,7 +139,7 @@ export default function MinhasMovimentacoes() {
                             : "bg-variable_outgoing text-amber-800"
                         }`}
                       >
-                        {transaction.transactionType}
+                        {transaction.transactionType === "recurring" ? 'fixo' : "variável"}
                       </span>
                     </td>
                     <td className="text-gray-600 p-4">

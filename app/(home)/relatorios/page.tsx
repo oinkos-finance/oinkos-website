@@ -45,9 +45,9 @@ export default function Relatorios() {
             <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
           </select>
 
-          <div className="flex items-center gap-10">
-            <button onClick={decrementPage}>AVANÇAR</button>
-            <button onClick={incrementPage}>VOLTAR</button>
+          <div className="flex items-center gap-10 mt-2 mb-2">
+            <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
+            <button onClick={incrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
           </div>
           <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
         </div>
