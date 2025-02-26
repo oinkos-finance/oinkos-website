@@ -35,7 +35,7 @@ export default function MinhasMovimentacoes() {
 
       <input 
         type="date" 
-        onChange={({ target }) => setInitialData(target?.value + "T10:00:00.000Z")} 
+        onChange={({ target }) => setInitialData(new Date(target?.value + "T10:00:00.000Z"))} 
         className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "  
       />
       <div className="mb-4 text-gray-700">
@@ -48,7 +48,7 @@ export default function MinhasMovimentacoes() {
         <select
           id="paymentType"
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-          onClick={({ target }) => setPeriod(target.value)}
+          onClick={(event: React.MouseEvent<HTMLSelectElement>) => setPeriod(Number(event.currentTarget.value))}
         >
           <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
           <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
@@ -59,7 +59,7 @@ export default function MinhasMovimentacoes() {
           <button onClick={decrementPage}>AVANÇAR</button>
           <button onClick={incrementPage}>VOLTAR</button>
         </div>
-        <div>De {startingDate?.toLocaleDateString()} até {endingDate?.toLocaleDateString()}</div>
+        <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
 
       </div>
       {transactions ? (

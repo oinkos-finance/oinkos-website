@@ -14,21 +14,13 @@ import {
 } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-type RecurringTransaction = {
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  startingDate: string,
-  endingDate: string,
-}
+import { Transaction } from "@/types/Transactions";
 
 export const useRecurringTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-  const [initialData, setInitialData] = useState< RecurringTransaction | null>(null)
+  const [initialData, setInitialData] = useState< Transaction | null>(null)
 
   const queryClient = useQueryClient();
 
@@ -59,25 +51,25 @@ export const useRecurringTransactions = () => {
   };
   const closeModalAdd = () => setIsModalAddOpen(false);
 
-  const handleEdition = (data: RecurringTransaction) => {
+  const handleEdition = (data: any) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("startingDate", data.startingDate.split("T")[0]);
+    setValue("startingDate", data.startingDate.toString().split("T")[0]);
     if(data.endingDate)
-      setValue("endingDate", data.endingDate.split("T")[0]);
+      setValue("endingDate", data.endingDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
   };
 
-  const handleEditionInitial = (data: RecurringTransaction) => {
+  const handleEditionInitial = (data: Transaction) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("startingDate", data.startingDate.split("T")[0]);
+    setValue("startingDate", data.startingDate.toString().split("T")[0]);
     if(data.endingDate)
-      setValue("endingDate", data.endingDate.split("T")[0]);
+      setValue("endingDate", data.endingDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
     setInitialData(data)
   };

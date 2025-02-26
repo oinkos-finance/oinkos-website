@@ -4,21 +4,12 @@ import {
   FormValues,
   formSchemaCreateUniqueTransaction,
 } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { getCategories } from "@/services/CommonTransactionsService";
-import { infiniteFindAll } from "@/services/UniqueTransactionService";
 import { createNewUniqueTransaction } from "@/services/UniqueTransactionService";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation,useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
-type UniqueTransaction = {
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  transactionDate: string
-}
+import { Transaction } from "@/types/Transactions";
 
 export const useUniqueTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -34,9 +25,8 @@ export const useUniqueTransactions = () => {
   const openModalEdit = () => setIsModalEditOpen(true);
   const closeModalEdit = () => setIsModalEditOpen(false);
 
-  const [initialData, setInitialData] = useState<UniqueTransaction | null>(null)
+  const [initialData, setInitialData] = useState<Transaction | null>(null)
 
-  const [, setIsSubmitSuccessful] = useState(false);
   const {
     handleSubmit,
     register,
@@ -54,21 +44,21 @@ export const useUniqueTransactions = () => {
     },
   });
 
-  const handleEdition = (data: UniqueTransaction) => {
+  const handleEdition = (data: any) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("transactionDate", data.transactionDate.split("T")[0]);
+    setValue("transactionDate", data.transactionDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
   };
 
-  const handleEditionInitial = (data: UniqueTransaction) => {
+  const handleEditionInitial = (data: Transaction) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("transactionDate", data.transactionDate.split("T")[0]);
+    setValue("transactionDate", data.transactionDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
     setInitialData(data)
   }

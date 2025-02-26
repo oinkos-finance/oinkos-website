@@ -2,7 +2,6 @@
 
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { findAll } from "./CommonTransactionsService";
 import { capitalizeFirstLetter } from "@/util/String";
 
 interface RequestBody {
@@ -13,30 +12,6 @@ interface RequestBody {
   category: string;
   transactionDate: string;
 }
-
-export const infiniteFindAll = async ({ pageParam = 0 }) => {
-  // buscar po padrão a cada mês
-  const oneMonth = 31 * 24 * 60 * 60;
-  const now = Math.floor(Date.now() / 1000);
-
-  const endingDate = now - pageParam * oneMonth;
-  const startingDate = endingDate - oneMonth;
-
-  // função que se repete em cada serviço
-  const transactions = await findAll({
-    onlyInclude: "unique",
-    startingDate,
-    endingDate,
-  });
-
-  const hasMore = transactions.length > 0;
-
-  return {
-    data: transactions,
-    currentPage: pageParam,
-    nextPage: hasMore ? pageParam + 1 : null,
-  };
-};
 
 export const createNewUniqueTransaction = async (data: FormValues) => {
   try {

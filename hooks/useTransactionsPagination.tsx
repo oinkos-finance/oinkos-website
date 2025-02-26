@@ -1,4 +1,4 @@
-import { getCategories, paginatedFindAll } from "@/services/CommonTransactionsService";
+import { getCategories, paginatedFindAll, PaginatedFindAllResponse } from "@/services/CommonTransactionsService";
 import { PeriodConstants } from "@/util/Constants";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -10,8 +10,8 @@ interface Props {
 
 export const useTransactionsPagination = ({queryName, onlyInclude}: Props) => {
 
-    const [initialData, setInitialData] = useState(Date.now())
-    const [period, setPeriod] = useState(PeriodConstants.ONE_MONTH);
+    const [initialData, setInitialData] = useState<Date | number>(Date.now())
+    const [period, setPeriod] = useState<number>(PeriodConstants.ONE_MONTH);
     const [page, setPage] = useState(0);
 
     const incrementPage = () => {
@@ -22,7 +22,7 @@ export const useTransactionsPagination = ({queryName, onlyInclude}: Props) => {
       setPage(prev => prev - 1)
     }
 
-    const { data } = useQuery({
+    const { data } = useQuery<PaginatedFindAllResponse>({
       queryKey: [queryName, period, page, initialData],
       queryFn: () => paginatedFindAll({ period, page, initialData, onlyInclude})
     });
@@ -33,12 +33,12 @@ export const useTransactionsPagination = ({queryName, onlyInclude}: Props) => {
     })
 
     return {
-      transactions: data?.transactions,
-      recurringTransactionsNumber: data?.recurringTransactionsNumber | 0,
-      uniqueTransactionsNumber: data?.uniqueTransactionsNumber | 0,
+      transactions: data?.transactions || [],
+      recurringTransactionsNumber: data?.recurringTransactionsNumber || 0,
+      uniqueTransactionsNumber: data?.uniqueTransactionsNumber || 0,
       totalSum: data?.total,
-      startingDate: data?.startingDate, 
-      endingDate: data?.endingDate,
+      startingDate: data?.startingDate || Date.now(),
+      endingDate: data?.endingDate || Date.now(),
       period,
       setPeriod,
       incrementPage,

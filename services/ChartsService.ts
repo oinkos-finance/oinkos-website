@@ -1,13 +1,8 @@
 "use server"
 
-import { PeriodConstants } from "@/util/Constants";
-import { findAll, paginatedFindAll } from "./CommonTransactionsService";
 import {
   Transaction,
-  RecurringTransaction,
-  UniqueTransaction,
 } from "@/types/Transactions";
-import { start } from "repl";
 
 const colors = [
   "#7CA9AD",
@@ -43,14 +38,24 @@ interface ChartData {
   datasets: Dataset[];
 }
 
-const oneDay = 24 * 60 * 60;
-const oneMonth = 31 * 24 * 60 * 60;
-const now = Math.floor(Date.now() / 1000);
+interface PaginationParams {
+  startingDate: string | Date | number;
+  endingDate: string | Date | number;
+  transactions: Transaction[]
+}
 
-const generateAgroupedTransactionsByWeek = (starting, ending, transactions) => {
+interface AgroupWeekParams {
+  starting: string | Date | number;
+  ending: string | Date | number;
+  transactions: Transaction[]
+}
+
+const oneDay = 24 * 60 * 60;
+
+const generateAgroupedTransactionsByWeek = ({ starting, ending, transactions }: AgroupWeekParams) => {
   
-  let startingDate = Math.floor(new Date(starting)/1000) 
-  let endingDate = Math.floor(new Date(ending)/1000)
+  let startingDate = new Date(starting).getTime() 
+  const endingDate = new Date(ending).getTime()
 
   // processar em semanas
   const weeks: TransactionsByWeek[] = [];
@@ -67,7 +72,7 @@ const generateAgroupedTransactionsByWeek = (starting, ending, transactions) => {
   // agrupa as transações pelas semanas
   sortedTransactions?.forEach((transaction) => {
     let lastWeek = 0;
-    const transactionDate = new Date(transaction.transactionDate);
+    const transactionDate = new Date(transaction?.transactionDate);
 
     for (let i = lastWeek; i < weeks.length; i++) {
       const weekStart = new Date(weeks[i].week);
@@ -84,13 +89,18 @@ const generateAgroupedTransactionsByWeek = (starting, ending, transactions) => {
   return weeks
 }
 
-const sortTransactionsByStartingDate = (transactions: Transaction[]) => transactions?.sort(
-  (a, b) => new Date(a.startingDate) - new Date(b.startingDate)
-);
+const sortTransactionsByStartingDate = (transactions: Transaction[]) => 
+  transactions?.sort((a, b) => {
+    const dateA = new Date(a.startingDate).getTime();
+    const dateB = new Date(b.startingDate).getTime();
+    
+    if (isNaN(dateA) || isNaN(dateB)) return 0;
+    return dateA - dateB;
+});
 
-export const generateBarChartData = async ({ transactions, startingDate, endingDate }): Promise<ChartData> => {
+export const generateBarChartData = async ({ transactions, startingDate, endingDate }: PaginationParams): Promise<ChartData> => {
 
-  const weeks = generateAgroupedTransactionsByWeek(startingDate, endingDate, transactions)
+  const weeks = generateAgroupedTransactionsByWeek({ starting: startingDate, ending: endingDate, transactions })
 
   const weekLabels: string[] = []
   const recurringSumData: number[] = []
@@ -160,9 +170,9 @@ export const generatePieChartData = async (transactions: Transaction[]): Promise
   return data;
 }; 
 
-export const generateLineChartData = async ({ transactions, startingDate, endingDate }): Promise<ChartData> => {
+export const generateLineChartData = async ({ transactions, startingDate, endingDate }: PaginationParams): Promise<ChartData> => {
 
-  const weeks = generateAgroupedTransactionsByWeek(startingDate, endingDate, transactions)
+  const weeks = generateAgroupedTransactionsByWeek({ starting: startingDate, ending: endingDate, transactions })
 
   const weekLabels: string[] = []
   const totalSum: number[] = []

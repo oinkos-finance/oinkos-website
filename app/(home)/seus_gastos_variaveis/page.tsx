@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { ChevronDown, Pencil, Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { SubmitHandler } from "react-hook-form";
 import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
 import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
 import { PeriodConstants } from "@/util/Constants";
 import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
+import { Transaction } from "@/types/Transactions";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -21,28 +22,10 @@ interface FormProps {
   buttonText: string;
 }
 
-type UniqueTransaction = {
-  // id: string,
-  title: string;
-  value: number;
-  category: string;
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
-  transactionDate: string;
-};
-
-type UniqueTransactionId = {
-  id: string;
-  title: string;
-  value: number;
-  category: string;
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
-  transactionDate: string;
-};
-
 export default function SeusGastosVariaveis() {
   const [, setError] = useState<string | null>(null);
   const [, setIsSubmitSuccessful] = useState<boolean>(false);
-  const [teste, setTeste] = useState<UniqueTransaction | null>();
+  const [teste] = useState<Transaction | null>();
   const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
   const {
@@ -163,7 +146,7 @@ export default function SeusGastosVariaveis() {
         />
         <datalist id="categories">
           {categories?.map((category: string, i: number) => (
-            <option key={i} value={category} onClick={register("category")}>
+            <option key={i} value={category}>
               {category}
             </option>
           ))}
@@ -219,7 +202,7 @@ export default function SeusGastosVariaveis() {
 
     const updatedFields = Object.fromEntries(
       Object.entries(formattedData).filter(([key, value]) => {
-        return value !== initialData[key as keyof UniqueTransaction];
+        return value !== initialData[key as keyof Transaction];
       })
     );
 
@@ -310,9 +293,7 @@ export default function SeusGastosVariaveis() {
         <div className="mb-4">
           <input
             type="date"
-            onChange={({ target }) =>
-              setInitialData(target?.value + "T10:00:00.000Z")
-            }
+            onChange={({ target }) => setInitialData(new Date(target?.value + "T10:00:00.000Z"))} 
             className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           />
           <div className="mb-4 text-gray-700">
@@ -325,7 +306,7 @@ export default function SeusGastosVariaveis() {
             <select
               id="paymentType"
               className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-              onClick={({ target }) => setPeriod(target.value)}
+              onClick={(event: React.MouseEvent<HTMLSelectElement>) => setPeriod(Number(event.currentTarget.value))}
             >
               <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
               <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
@@ -336,10 +317,7 @@ export default function SeusGastosVariaveis() {
               <button onClick={decrementPage}>AVANÇAR</button>
               <button onClick={incrementPage}>VOLTAR</button>
             </div>
-            <div>
-              De {startingDate?.toLocaleDateString()} até{" "}
-              {endingDate?.toLocaleDateString()}
-            </div>
+            <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
           </div>
         </div>
 
@@ -366,7 +344,7 @@ export default function SeusGastosVariaveis() {
               </thead>
               <tbody>
                 {transactions?.map(
-                  (transaction: UniqueTransactionId, index) => (
+                  (transaction: Transaction, index: number) => (
                     <tr
                       key={index}
                       className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"

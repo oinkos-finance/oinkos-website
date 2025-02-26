@@ -4,17 +4,26 @@ import { PeriodConstants } from "@/util/Constants";
 import getCookies from "../server/cookies/getCookies";
 import { Transaction } from "@/types/Transactions";
 
-interface paginatedFindAllParams { 
-  initialData: string;
+interface PaginatedFindAllParams { 
+  initialData: string | number | Date;
   period: number;
   page: number; 
   onlyInclude: string | null;
 }
 
-export const paginatedFindAll = async ({ initialData, period, page, onlyInclude }: paginatedFindAllParams) => {
+export interface PaginatedFindAllResponse {
+  transactions: Transaction[];
+  total: number;
+  recurringTransactionsNumber: number;
+  uniqueTransactionsNumber: number;
+  startingDate: Date | string | number | null;
+  endingDate: Date | string | number | null;
+}
+
+export const paginatedFindAll = async ({ initialData, period, page, onlyInclude }: PaginatedFindAllParams): Promise<PaginatedFindAllResponse> => {
   
-  let fixedStartingDate
-  let fixedEndingDate
+  let fixedStartingDate: Date | string | number | null = null;
+  let fixedEndingDate: Date | string | number | null = null
   let data
 
   if(period == PeriodConstants.ONE_MONTH) {
@@ -107,7 +116,7 @@ interface ResponseFindAll {
   total: number;
 }
 
-export const findAll = async (params: Params): Promise<ResponseFindAll | undefined> => {
+export const findAll = async (params: Params): Promise<ResponseFindAll> => {
   try {
     const token = await getCookies();
     const options = {
@@ -131,10 +140,11 @@ export const findAll = async (params: Params): Promise<ResponseFindAll | undefin
 
     const response = await fetch(url.href, options);
     const { transactions, total } = await response.json();
-
     return { transactions, total };
+    
   } catch (err) {
     console.error("Erro ao buscar lista de transações:", err);
+    return { transactions: [], total: 0 }
   }
 };
 

@@ -9,6 +9,7 @@ import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { PeriodConstants } from "@/util/Constants";
+import { Transaction } from "@/types/Transactions";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -29,20 +30,10 @@ type RecurringTransaction = {
   endingDate: string;
 };
 
-type RecurringTransactionId = {
-  id: string;
-  title: string;
-  value: number;
-  category: string;
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
-  startingDate: string;
-  endingDate: string;
-};
-
 export default function SeusGastosFixos() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitSucessful, setIsSubmitSuccessful] = useState<boolean>(false);
-  const [teste, setTeste] = useState<RecurringTransaction | null>();
+  const [teste, setTeste] = useState<Transaction | null>();
   const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
   const {
@@ -163,7 +154,7 @@ export default function SeusGastosFixos() {
         />
         <datalist id="categories">
           {categories?.map((category: string, i: number) => (
-            <option key={i} value={category} onClick={register("category")}>
+            <option key={i} value={category}>
               {category}
             </option>
           ))}
@@ -330,9 +321,7 @@ export default function SeusGastosFixos() {
         <div className="mb-4">
           <input
             type="date"
-            onChange={({ target }) =>
-              setInitialData(target?.value + "T10:00:00.000Z")
-            }
+            onChange={({ target }) => setInitialData(new Date(target?.value + "T10:00:00.000Z"))} 
             className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           />
           <div className="mb-4 text-gray-700">
@@ -345,7 +334,7 @@ export default function SeusGastosFixos() {
             <select
               id="paymentType"
               className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-              onClick={({ target }) => setPeriod(target.value)}
+              onClick={(event: React.MouseEvent<HTMLSelectElement>) => setPeriod(Number(event.currentTarget.value))}
             >
               <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
               <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
@@ -356,10 +345,7 @@ export default function SeusGastosFixos() {
               <button onClick={decrementPage}>AVANÇAR</button>
               <button onClick={incrementPage}>VOLTAR</button>
             </div>
-            <div>
-              De {startingDate?.toLocaleDateString()} até{" "}
-              {endingDate?.toLocaleDateString()}
-            </div>
+            <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
           </div>
         </div>
 
@@ -388,7 +374,7 @@ export default function SeusGastosFixos() {
               </thead>
               <tbody>
                 {transactions?.map(
-                  (transaction: RecurringTransactionId, index) => (
+                  (transaction: Transaction, index) => (
                     <tr
                       key={index}
                       className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-t-0 text-center"
