@@ -54,8 +54,8 @@ const oneDay = 24 * 60 * 60;
 
 const generateAgroupedTransactionsByWeek = ({ starting, ending, transactions }: AgroupWeekParams) => {
   
-  let startingDate = new Date(starting).getTime() 
-  const endingDate = new Date(ending).getTime()
+  let startingDate = Math.floor( Number(new Date(starting)) / 1000)
+  const endingDate = Math.floor(Number (new Date(ending)) / 1000)
 
   // processar em semanas
   const weeks: TransactionsByWeek[] = [];
