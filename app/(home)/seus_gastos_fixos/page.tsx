@@ -9,7 +9,7 @@ import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { PeriodConstants } from "@/util/Constants";
-import { Transaction } from "@/types/Transactions";
+import { Transaction, RecurringTransaction } from "@/types/Transactions";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -20,15 +20,6 @@ interface ModalProps {
 interface FormProps {
   onSubmit: SubmitHandler<FormValues>;
 }
-
-type RecurringTransaction = {
-  title: string;
-  value: number;
-  category: string;
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
-  startingDate: string;
-  endingDate: string;
-};
 
 export default function SeusGastosFixos() {
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +55,7 @@ export default function SeusGastosFixos() {
     endingDate,
     setInitialData,
     categories
-  } = useTransactionsPagination({queryName: "recurringTransactions", onlyInclude: "recurring"});
+  } = useTransactionsPagination<RecurringTransaction>({queryName: "recurringTransactions", onlyInclude: "recurring"});
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -374,7 +365,7 @@ export default function SeusGastosFixos() {
               </thead>
               <tbody>
                 {transactions?.map(
-                  (transaction: Transaction, index) => (
+                  (transaction: RecurringTransaction, index) => (
                     <tr
                       key={index}
                       className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-t-0 text-center"

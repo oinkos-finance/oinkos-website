@@ -44,7 +44,7 @@ export const useUniqueTransactions = () => {
     },
   });
 
-  const handleEdition = (data: any) => {
+  const handleEdition = (data: FormValues) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);

@@ -6,7 +6,7 @@ import PieChart from "@/components/pie_chart/pie";
 import { useRecurringTransactions } from "@/hooks/useRecurringTransactions";
 import { useTransactionReport } from "@/hooks/useTransactionReport";
 import getUser from "@/server/getUser/getUser";
-import { RecurringTransaction, Transaction } from "@/types/Transactions";
+import { RecurringTransaction } from "@/types/Transactions";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 interface User {
@@ -49,8 +49,9 @@ export default function PaginaInicial() {
         <h3 className="text-xl font-bold">Próximos Pagamentos</h3>
         <div className="text-xl grid grid-cols-3 gap-[15px]">
           {nextRecurringTransactions?.map(
-            (transaction: Transaction, key: number) => (
+            (transaction: RecurringTransaction, key: number) => (
               <TransactionCard
+                skipped={transaction.transactionStatus == "skipped"}
                 key={key}
                 category={transaction.category}
                 date={new Date(

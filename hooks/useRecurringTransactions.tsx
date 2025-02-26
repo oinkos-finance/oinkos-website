@@ -14,13 +14,14 @@ import {
 } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Transaction } from "@/types/Transactions";
+import { RecurringTransaction } from "@/types/Transactions";
+import { revertRecurringTransaction } from "@/services/UniqueTransactionService";
 
 export const useRecurringTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalAddOpen, setIsModalAddOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-  const [initialData, setInitialData] = useState< Transaction | null>(null)
+  const [initialData, setInitialData] = useState< RecurringTransaction | null>(null)
 
   const queryClient = useQueryClient();
 
@@ -51,7 +52,7 @@ export const useRecurringTransactions = () => {
   };
   const closeModalAdd = () => setIsModalAddOpen(false);
 
-  const handleEdition = (data: any) => {
+  const handleEdition = (data: FormValues) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
@@ -62,7 +63,7 @@ export const useRecurringTransactions = () => {
     setIsModalEditOpen(true);
   };
 
-  const handleEditionInitial = (data: Transaction) => {
+  const handleEditionInitial = (data: RecurringTransaction) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
@@ -82,8 +83,14 @@ export const useRecurringTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
   });
 
+  const revertMutation = useMutation({
+    mutationFn: revertRecurringTransaction,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["allTransactions"] }),
+  });
+
   const { data: nextRecurringTransactions } = useQuery({
-    queryKey: [""],
+    queryKey: ["getNextRecurring"],
     queryFn: getNextRecurringTransactions
   })
       
@@ -99,7 +106,6 @@ export const useRecurringTransactions = () => {
     closeModalEdit,
     nextRecurringTransactions,
     createMutation,
-    //editMutation,
     handleSubmit,
     setValue,
     reset,
@@ -107,5 +113,6 @@ export const useRecurringTransactions = () => {
     register,
     initialData,
     handleEditionInitial,
+    revertMutation
   };
 };

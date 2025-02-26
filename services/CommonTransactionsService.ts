@@ -11,8 +11,8 @@ interface PaginatedFindAllParams {
   onlyInclude: string | null;
 }
 
-export interface PaginatedFindAllResponse {
-  transactions: Transaction[];
+export interface PaginatedFindAllResponse<T> {
+  transactions: T[];
   total: number;
   recurringTransactionsNumber: number;
   uniqueTransactionsNumber: number;
@@ -20,7 +20,7 @@ export interface PaginatedFindAllResponse {
   endingDate: Date | string | number | null;
 }
 
-export const paginatedFindAll = async ({ initialData, period, page, onlyInclude }: PaginatedFindAllParams): Promise<PaginatedFindAllResponse> => {
+export const paginatedFindAll = async <T extends Transaction>({ initialData, period, page, onlyInclude }: PaginatedFindAllParams): Promise<PaginatedFindAllResponse<T>> => {
   
   let fixedStartingDate: Date | string | number | null = null;
   let fixedEndingDate: Date | string | number | null = null
@@ -96,7 +96,7 @@ export const paginatedFindAll = async ({ initialData, period, page, onlyInclude 
   const uniqueTransactionsNumber = data?.transactions?.length ? data?.transactions?.length - recurringTransactionsNumber : 0
   
   return {
-    transactions: data?.transactions || [],
+    transactions: (data?.transactions || []) as T[],
     total: data?.total || 0,
     recurringTransactionsNumber: recurringTransactionsNumber || 0,
     uniqueTransactionsNumber: uniqueTransactionsNumber || 0,
@@ -111,12 +111,12 @@ interface Params {
   endingDate: string | number | null;
 }
 
-interface ResponseFindAll {
-  transactions: Transaction[];
+interface ResponseFindAll<T> {
+  transactions: T[];
   total: number;
 }
 
-export const findAll = async (params: Params): Promise<ResponseFindAll> => {
+export const findAll = async <T extends Transaction> (params: Params): Promise<ResponseFindAll<T>> => {
   try {
     const token = await getCookies();
     const options = {

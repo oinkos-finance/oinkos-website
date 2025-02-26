@@ -1,6 +1,6 @@
 interface Props {
     text: string;
-    value: number
+    value: number | undefined;
 }
 
 export default function Card({ text, value }: Props){

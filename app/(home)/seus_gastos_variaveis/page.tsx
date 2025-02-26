@@ -9,7 +9,7 @@ import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
 import { PeriodConstants } from "@/util/Constants";
 import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
-import { Transaction } from "@/types/Transactions";
+import { Transaction, UniqueTransaction } from "@/types/Transactions";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -56,7 +56,7 @@ export default function SeusGastosVariaveis() {
     endingDate,
     categories,
     setInitialData,
-  } = useTransactionsPagination({ queryName: "uniqueTransactions", onlyInclude: "unique"});
+  } = useTransactionsPagination<UniqueTransaction>({ queryName: "uniqueTransactions", onlyInclude: "unique"});
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -344,7 +344,7 @@ export default function SeusGastosVariaveis() {
               </thead>
               <tbody>
                 {transactions?.map(
-                  (transaction: Transaction, index: number) => (
+                  (transaction: UniqueTransaction, index: number) => (
                     <tr
                       key={index}
                       className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"

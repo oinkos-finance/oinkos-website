@@ -4,6 +4,7 @@ import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { findAll } from "./CommonTransactionsService";
 import { capitalizeFirstLetter } from "@/util/String";
+import { RecurringTransaction } from "@/types/Transactions";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -63,13 +64,15 @@ export const getNextRecurringTransactions = async () => {
     const startingDate = Math.floor(Date.now() / 1000);
     const endingDate = startingDate + 7 * 24 * 60 * 60
 
-    const { transactions } = await findAll({
+    const { transactions } = await findAll<RecurringTransaction>({
       onlyInclude: "recurring",
       startingDate,
       endingDate,
     })
     
-    return transactions || null;
+    console.log(transactions)
+
+    return transactions;
 
   } catch (err) {
     console.error("Erro ao buscar lista de transações:", err);

@@ -43,7 +43,45 @@ export const createNewUniqueTransaction = async (data: FormValues) => {
       options
     );
 
-    console.log(body)
+    return await response.json();
+  } catch (err) {
+    console.error("Erro ao criar novo gasto variável:", err);
+  }
+};
+
+interface revertRecurringTransactionRequestBody {  
+  action: "skip" | "revert";
+  occurrence: number | undefined;
+}
+
+interface revertRecurringTransactionParams extends revertRecurringTransactionRequestBody {  
+  id: string | undefined;
+}
+
+export const revertRecurringTransaction = async (data: revertRecurringTransactionParams) => {
+  try {
+    const token = await getCookies();
+
+    const body: revertRecurringTransactionRequestBody = {
+      action: "skip",
+      occurrence: data.occurrence,
+    };
+
+    const options = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    };
+
+    const response = await fetch(
+      `https://api.oinkos.samnsc.com/transaction/${data.id}`,
+      options
+    );
+
     console.log(response)
 
     return await response.json();
