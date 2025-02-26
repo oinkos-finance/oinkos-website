@@ -33,7 +33,7 @@ type RecurringTransaction = {
 export default function SeusGastosFixos() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitSucessful, setIsSubmitSuccessful] = useState<boolean>(false);
-  const [teste, setTeste] = useState<Transaction | null>();
+  const [teste] = useState<Transaction | null>();
   const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
   const {

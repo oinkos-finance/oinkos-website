@@ -4,17 +4,14 @@ import BarChart from "@/components/bar_chart/bar";
 import LineChart from "@/components/line_chart/line";
 import PieChart from "@/components/pie_chart/pie";
 import { useTransactionReport } from "@/hooks/useTransactionReport";
-import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { PeriodConstants } from "@/util/Constants";
 
 export default function Relatorios() {
-  
   
   const { 
     incrementPage, 
     decrementPage, 
     setInitialData, 
-    initialData, 
     setPeriod, 
     pieChartData, 
     lineChartData, 

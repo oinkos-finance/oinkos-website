@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransactions } from "@/hooks/useTransactions";
 import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { Transaction } from "@/types/Transactions";
 import { PeriodConstants } from "@/util/Constants";
@@ -18,14 +17,11 @@ export default function MinhasMovimentacoes() {
     transactions, 
     recurringTransactionsNumber,
     uniqueTransactionsNumber,
-    period, 
     setPeriod, 
     incrementPage, 
     decrementPage, 
     startingDate, 
     endingDate, 
-    page, 
-    initialData, 
     setInitialData
   } = useTransactionsPagination({ queryName: "allTransactions", onlyInclude: null})
 
