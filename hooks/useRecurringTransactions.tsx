@@ -79,14 +79,18 @@ export const useRecurringTransactions = () => {
 
   const createMutation = useMutation({
     mutationFn: createNewRecurringTransaction,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allTransactions"] });
+      queryClient.invalidateQueries({ queryKey: ["getNextRecurring"] });
+    }
   });
 
   const revertMutation = useMutation({
     mutationFn: revertRecurringTransaction,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["allTransactions"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allTransactions"] });
+      queryClient.invalidateQueries({ queryKey: ["getNextRecurring"] });
+    }
   });
 
   const { data: nextRecurringTransactions } = useQuery({
