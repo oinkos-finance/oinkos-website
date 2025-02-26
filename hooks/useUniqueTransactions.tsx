@@ -79,27 +79,12 @@ export const useUniqueTransactions = () => {
 
   const queryClient = useQueryClient()
 
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ["uniqueTransactions"],
-    queryFn: infiniteFindAll,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
-
   const createMutation = useMutation({
-    mutationKey: ["21"],
+    mutationKey: ["createUnique"],
     mutationFn: createNewUniqueTransaction,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] }),
   });
-
-  let transactions = [] 
-  data?.pages.forEach(({ data }) => data.forEach( t  => transactions.push(t)))
-  
-  const { data: categories } = useQuery({
-    queryKey: ["getCategories"],
-    queryFn: getCategories
-  })
 
   return {
     handleEdition,
@@ -112,15 +97,11 @@ export const useUniqueTransactions = () => {
     closeModalAdd,
     closeModalEdit,
     closeModalDelete,
-    transactions,
-    fetchNextPage,
-    hasNextPage,
     createMutation,
     handleSubmit,
     reset,
     errors,
     register,
-    categories,
     initialData,
     handleEditionInitial
   };

@@ -7,6 +7,8 @@ import { SubmitHandler } from "react-hook-form";
 import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
 import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
+import { PeriodConstants } from "@/util/Constants";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -19,29 +21,29 @@ interface FormProps {
 }
 
 type RecurringTransaction = {
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  startingDate: string,
-  endingDate: string,
-}
+  title: string;
+  value: number;
+  category: string;
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
+  startingDate: string;
+  endingDate: string;
+};
 
 type RecurringTransactionId = {
-  id: string,
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  startingDate: string,
-  endingDate: string,
-}
+  id: string;
+  title: string;
+  value: number;
+  category: string;
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard";
+  startingDate: string;
+  endingDate: string;
+};
 
 export default function SeusGastosFixos() {
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitSucessful, setIsSubmitSuccessful] = useState<boolean>(false)
-  const [teste, setTeste] = useState<RecurringTransaction | null>()
-  const [id, setId] = useState<string>('')
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitSucessful, setIsSubmitSuccessful] = useState<boolean>(false);
+  const [teste, setTeste] = useState<RecurringTransaction | null>();
+  const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
   const {
     handleEdition,
@@ -53,18 +55,25 @@ export default function SeusGastosFixos() {
     closeModalAdd,
     closeModalDelete,
     closeModalEdit,
-    transactions,
-    hasNextPage,
-    fetchNextPage,
     createMutation,
     errors,
     register,
     reset,
     handleSubmit,
-    categories,
     initialData,
-    handleEditionInitial
+    handleEditionInitial,
   } = useRecurringTransactions();
+
+  const {
+    transactions,
+    setPeriod,
+    incrementPage,
+    decrementPage,
+    startingDate,
+    endingDate,
+    setInitialData,
+    categories
+  } = useTransactionsPagination({queryName: "recurringTransactions", onlyInclude: "recurring"});
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -153,7 +162,7 @@ export default function SeusGastosFixos() {
           {...register("category")}
         />
         <datalist id="categories">
-          {categories.map((category: string, i: number) => (
+          {categories?.map((category: string, i: number) => (
             <option key={i} value={category} onClick={register("category")}>
               {category}
             </option>
@@ -164,37 +173,37 @@ export default function SeusGastosFixos() {
         </label>
       </div>
       <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-1"
-              htmlFor="data-inicial-gasto-fixo"
-            >
-              Selecione a Data Inicial de Recorrência:
-            </label>
-            <input
-              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
-              type="date"
-              {...register("startingDate")}
-            ></input>
-            <label className="text-red-500 mb-3 text-md">
-              {errors.startingDate?.message}
-            </label>
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-1"
-              htmlFor="data-final-gasto-fixo"
-            >
-              Selecione a Data de Encerramento das Recorrências:
-            </label>
-            <input
-              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
-              type="date"
-              {...register("endingDate")}
-            ></input>
-            <label className="text-red-500 mb-3 text-md">
-              {errors.endingDate?.message}
-            </label>
-          </div>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="data-inicial-gasto-fixo"
+        >
+          Selecione a Data Inicial de Recorrência:
+        </label>
+        <input
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+          type="date"
+          {...register("startingDate")}
+        ></input>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.startingDate?.message}
+        </label>
+      </div>
+      <div className="mb-4">
+        <label
+          className="block text-gray-700 text-sm font-bold mb-1"
+          htmlFor="data-final-gasto-fixo"
+        >
+          Selecione a Data de Encerramento das Recorrências:
+        </label>
+        <input
+          className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none"
+          type="date"
+          {...register("endingDate")}
+        ></input>
+        <label className="text-red-500 mb-3 text-md">
+          {errors.endingDate?.message}
+        </label>
+      </div>
       <div className="w-full mt-2 flex justify-center">
         <button
           type="submit"
@@ -207,113 +216,153 @@ export default function SeusGastosFixos() {
   );
 
   useEffect(() => {
-      console.log(teste, 'aqui')
-    }, [teste])
-  
-    async function editInformation(data: FormValues) {
-  
-      console.log(data)
-      
-      const formattedData = {
-        ...data,
-        startingDate: new Date(data.startingDate).toISOString().split("T")[0] + "T00:00:00Z",
-        endingDate: data.endingDate
+    console.log(teste, "aqui");
+  }, [teste]);
+
+  async function editInformation(data: FormValues) {
+    console.log(data);
+
+    const formattedData = {
+      ...data,
+      startingDate:
+        new Date(data.startingDate).toISOString().split("T")[0] + "T00:00:00Z",
+      endingDate: data.endingDate
         ? new Date(data.endingDate).toISOString().split("T")[0] + "T00:00:00Z"
-        : undefined
-      };
+        : undefined,
+    };
 
-      console.log(formattedData, 'formatada')
-  
-      setIsSubmitSuccessful(false)
-      setError(null)
-  
-      if (!initialData)
-        return
-  
-      const updatedFields = Object.fromEntries(
-        Object.entries(formattedData).filter(([key, value]) => {
-          return value !== initialData[key as keyof RecurringTransaction];
-        })
-      );
-  
-      if (Object.keys(updatedFields).length === 0) {
-        console.log("Nenhuma alteração detectada.");
-        return;
-      }
-      console.log(updatedFields)
-  
-      const token = await getCookies()
-      const options = {
-        method: 'PATCH',
-        headers: {
-          accept: 'application/json', 'content-type': 'application/json',
-          authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updatedFields),
-      };
-  
-      console.log("Enviando para a API:", options.body);
-      fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
-        .then(res => res.json().then(data => ({ status: res.status, data }))
-          .then(async res => {
-            console.log(res, 'teste')
-  
-            if (res.status === 400)
-              setError('Sintaxe de resposta mal formatada.')
-            else if (res.status === 404)
-              setError('Transação não encontrada.')
-            else if (res.status === 422)
-              setError('Valores inválidos.')
-            else if (res.status === 500)
-              setError('Erro interno no servidor.')
-            else {
-              setIsSubmitSuccessful(true)
-              reset()
-              console.log("sucesso!")
-  
-            }
-  
-          })
-          .catch(err => console.error(err)))
-          .finally(() => queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }))
+    console.log(formattedData, "formatada");
+
+    setIsSubmitSuccessful(false);
+    setError(null);
+
+    if (!initialData) return;
+
+    const updatedFields = Object.fromEntries(
+      Object.entries(formattedData).filter(([key, value]) => {
+        return value !== initialData[key as keyof RecurringTransaction];
+      })
+    );
+
+    if (Object.keys(updatedFields).length === 0) {
+      console.log("Nenhuma alteração detectada.");
+      return;
     }
+    console.log(updatedFields);
 
-    async function deleteTransaction(id: string) {
-    
-        const token = await getCookies()
-        const options = {
-          method: 'DELETE',
-          headers: {
-            accept: 'application/json', 'content-type': 'application/json',
-            authorization: `Bearer ${token}`
-          },
-        };
-    
-        console.log(id, 'id')
-    
-        fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
-          .then(res => res.json().then(data => ({ status: res.status, data }))
-            .then(async res => {
-              console.log(res, 'teste')
-    
-              if (res.status === 404)
-                setError('Transação não encontrada.')
-              else if (res.status === 500)
-                setError('Erro interno no servidor.')
-              else {
-                setIsSubmitSuccessful(true)
-                reset()
-                console.log("sucesso!")
-              }
-    
-            })
-            .catch(err => console.error(err)))
-            .finally(() => queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }))
-      }
+    const token = await getCookies();
+    const options = {
+      method: "PATCH",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updatedFields),
+    };
+
+    console.log("Enviando para a API:", options.body);
+    fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
+      .then((res) =>
+        res
+          .json()
+          .then((data) => ({ status: res.status, data }))
+          .then(async (res) => {
+            console.log(res, "teste");
+
+            if (res.status === 400)
+              setError("Sintaxe de resposta mal formatada.");
+            else if (res.status === 404) setError("Transação não encontrada.");
+            else if (res.status === 422) setError("Valores inválidos.");
+            else if (res.status === 500) setError("Erro interno no servidor.");
+            else {
+              setIsSubmitSuccessful(true);
+              reset();
+              console.log("sucesso!");
+            }
+          })
+          .catch((err) => console.error(err))
+      )
+      .finally(() =>
+        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] })
+      );
+  }
+
+  async function deleteTransaction(id: string) {
+    const token = await getCookies();
+    const options = {
+      method: "DELETE",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    };
+
+    console.log(id, "id");
+
+    fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
+      .then((res) =>
+        res
+          .json()
+          .then((data) => ({ status: res.status, data }))
+          .then(async (res) => {
+            console.log(res, "teste");
+
+            if (res.status === 404) setError("Transação não encontrada.");
+            else if (res.status === 500) setError("Erro interno no servidor.");
+            else {
+              setIsSubmitSuccessful(true);
+              reset();
+              console.log("sucesso!");
+            }
+          })
+          .catch((err) => console.error(err))
+      )
+      .finally(() =>
+        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] })
+      );
+  }
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
+        <div className="mb-4">
+          <input
+            type="date"
+            onChange={({ target }) =>
+              setInitialData(target?.value + "T10:00:00.000Z")
+            }
+            className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+          />
+          <div className="mb-4 text-gray-700">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-1"
+              htmlFor="format"
+            >
+              Período
+            </label>
+            <select
+              id="paymentType"
+              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+              onClick={({ target }) => setPeriod(target.value)}
+            >
+              <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
+              <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
+              <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
+            </select>
+
+            <div className="flex items-center gap-10">
+              <button onClick={decrementPage}>AVANÇAR</button>
+              <button onClick={incrementPage}>VOLTAR</button>
+            </div>
+            <div>
+              De {startingDate?.toLocaleDateString()} até{" "}
+              {endingDate?.toLocaleDateString()}
+            </div>
+          </div>
+        </div>
+
         <h1 className="text-3xl text-black mb-6">Seus Gastos Fixos</h1>
         <button
           onClick={openModalAdd}
@@ -366,13 +415,19 @@ export default function SeusGastosFixos() {
                       <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
                         <div
                           className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                          onClick={()=>{openModalDelete(); setId(transaction.id)}}
+                          onClick={() => {
+                            openModalDelete();
+                            setId(transaction.id);
+                          }}
                         >
                           <Trash size={18} className=" text-black" />
                         </div>
                         <div
                           className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                          onClick={() => {handleEditionInitial(transaction); setId(transaction.id)}}
+                          onClick={() => {
+                            handleEditionInitial(transaction);
+                            setId(transaction.id);
+                          }}
                         >
                           <Pencil size={18} className=" text-black" />
                         </div>
@@ -382,7 +437,6 @@ export default function SeusGastosFixos() {
                 )}
               </tbody>
             </table>
-            {hasNextPage && <button onClick={()=>fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -412,7 +466,7 @@ export default function SeusGastosFixos() {
           <Form
             onSubmit={(data) => {
               editInformation(data);
-              handleEdition(data)
+              handleEdition(data);
               //reset();
               closeModalEdit();
             }}
@@ -427,7 +481,13 @@ export default function SeusGastosFixos() {
             Deseja excluir esse gasto fixo? Essa ação é irrevertível!
           </p>
           <div className="w-full mt-2 flex justify-center">
-            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition" onClick={() => { deleteTransaction(id); closeModalDelete() }}>
+            <button
+              className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition"
+              onClick={() => {
+                deleteTransaction(id);
+                closeModalDelete();
+              }}
+            >
               Excluir
             </button>
           </div>

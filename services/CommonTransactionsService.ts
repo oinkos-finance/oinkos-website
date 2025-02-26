@@ -2,36 +2,97 @@
 
 import { PeriodConstants } from "@/util/Constants";
 import getCookies from "../server/cookies/getCookies";
+import { Transaction } from "@/types/Transactions";
 
-export const infiniteFindAll = async ({ pageParam }, period) => {
+interface paginatedFindAllParams { 
+  initialData: string;
+  period: number;
+  page: number; 
+  onlyInclude: string | null;
+}
+
+export const paginatedFindAll = async ({ initialData, period, page, onlyInclude }: paginatedFindAllParams) => {
   
-  let days = 0;
+  let fixedStartingDate
+  let fixedEndingDate
+  let data
 
-  // Solução temporária, não está padronizado como feito para os gráficos
-  if(period == PeriodConstants.ONE_MONTH)
-    days = 31
-  else if(period == PeriodConstants.ONE_WEEK)
-    days = 7
+  if(period == PeriodConstants.ONE_MONTH) {
+    const interval = 1
+    const now = new Date(initialData)
+    const totalMonths = now.getMonth() - interval * page;
+    const newYear = now.getFullYear() + Math.floor(totalMonths / 12);
+    const newMonth = (totalMonths % 12 + 12) % 12; 
+
+    const ending = new Date(now);
+    ending.setFullYear(newYear);
+    ending.setMonth(newMonth);
+    
+    const starting = new Date(ending);
+    starting.setMonth(starting.getMonth() - 1);
+
+    data = await findAll({
+      onlyInclude: onlyInclude,
+      startingDate: Math.floor(Number(new Date(starting)) / 1000),
+      endingDate: Math.floor(Number(new Date(ending)) / 1000),
+    });
+
+    fixedStartingDate = new Date(starting)
+    fixedEndingDate = new Date(ending)
+  }
+
+  else if(period == PeriodConstants.THREE_MONTHS) {
+    const interval = 3
+    const now = new Date(initialData)
+    const totalMonths = now.getMonth() - interval * page;
+    const newYear = now.getFullYear() + Math.floor(totalMonths / 12);
+    const newMonth = (totalMonths % 12 + 12) % 12; 
+
+    const ending = new Date(now);
+    ending.setFullYear(newYear);
+    ending.setMonth(newMonth);
+    
+    const starting = new Date(ending);
+    starting.setMonth(starting.getMonth() - interval);
+
+    data = await findAll({
+      onlyInclude: onlyInclude,
+      startingDate: Math.floor(Number(new Date(starting)) / 1000),
+      endingDate: Math.floor(Number(new Date(ending)) / 1000),
+    });
+
+    fixedStartingDate = new Date(starting)
+    fixedEndingDate = new Date(ending)
+  }
+
+  // mais interessante usar o tempo em unix
+  else if (period == PeriodConstants.ONE_WEEK) {
+
+    const now = Math.floor(Number(new Date(initialData)) / 1000);
+    const interval = 7 * 24 * 60 * 60;
+    const endingDate = now - interval * page;
+    const startingDate = endingDate - interval;
+
+    data = await findAll({
+      onlyInclude: onlyInclude,
+      startingDate,
+      endingDate,
+    });
+
+    fixedStartingDate = new Date(startingDate * 1000)
+    fixedEndingDate = new Date(endingDate * 1000)
+  }
   
-  const oneMonth = days * 24 * 60 * 60;
-  const now = Math.floor(Date.now() / 1000);
-
-  const endingDate = now - pageParam * oneMonth;
-  const startingDate = endingDate - oneMonth;
-
-  // função que se repete em cada serviço
-  const transactions = await findAll({
-    onlyInclude: null,
-    startingDate,
-    endingDate,
-  });
-
-  const hasMore = transactions.length > 0;
-
+  const recurringTransactionsNumber = data?.transactions.filter(transaction => transaction.transactionType == "recurring")?.length || 0
+  const uniqueTransactionsNumber = data?.transactions?.length ? data?.transactions?.length - recurringTransactionsNumber : 0
+  
   return {
-    data: transactions,
-    currentPage: pageParam,
-    nextPage: hasMore ? pageParam + 1 : null, 
+    transactions: data?.transactions || [],
+    total: data?.total || 0,
+    recurringTransactionsNumber: recurringTransactionsNumber || 0,
+    uniqueTransactionsNumber: uniqueTransactionsNumber || 0,
+    startingDate: fixedStartingDate,
+    endingDate: fixedEndingDate
   };
 };
 
@@ -41,7 +102,12 @@ interface Params {
   endingDate: string | number | null;
 }
 
-export const findAll = async (params: Params) => {
+interface ResponseFindAll {
+  transactions: Transaction[];
+  total: number;
+}
+
+export const findAll = async (params: Params): Promise<ResponseFindAll | undefined> => {
   try {
     const token = await getCookies();
     const options = {
@@ -51,7 +117,7 @@ export const findAll = async (params: Params) => {
         authorization: `Bearer ${token}`,
       },
     };
-    
+
     const url = new URL("https://api.oinkos.samnsc.com/transaction");
 
     if (params.onlyInclude)
@@ -64,12 +130,9 @@ export const findAll = async (params: Params) => {
       url.searchParams.append("endingDate", params.endingDate.toString());
 
     const response = await fetch(url.href, options);
-    const { transactions } = await response.json();
+    const { transactions, total } = await response.json();
 
-    console.log(transactions)
-
-    return transactions || null;
-
+    return { transactions, total };
   } catch (err) {
     console.error("Erro ao buscar lista de transações:", err);
   }
@@ -85,16 +148,15 @@ export const getCategories = async () => {
         authorization: `Bearer ${token}`,
       },
     };
-    
+
     const url = new URL("https://api.oinkos.samnsc.com/category");
     const response = await fetch(url.href, options);
     const { categories } = await response.json();
 
-    console.log(categories)
+    console.log(categories);
 
     return categories || null;
-
   } catch (err) {
     console.error("Erro ao buscar lista de transações:", err);
   }
-}
+};

@@ -5,6 +5,8 @@ export interface Transaction {
   paymentType: string;
   category: string;
   id: string;
+  startingDate: Date;
+  endingDate: Date;
 }
 
 export interface UniqueTransaction extends Transaction {
@@ -16,4 +18,5 @@ export interface RecurringTransaction extends Transaction {
   endingDate: Date;
   transactionStatus: 'credited' | 'skipped';
   ocurrence: number;
+  transactionDate: Date;
 }

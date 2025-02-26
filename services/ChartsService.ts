@@ -1,12 +1,13 @@
 "use server"
 
 import { PeriodConstants } from "@/util/Constants";
-import { findAll } from "./CommonTransactionsService";
+import { findAll, paginatedFindAll } from "./CommonTransactionsService";
 import {
   Transaction,
   RecurringTransaction,
   UniqueTransaction,
 } from "@/types/Transactions";
+import { start } from "repl";
 
 const colors = [
   "#7CA9AD",
@@ -46,8 +47,11 @@ const oneDay = 24 * 60 * 60;
 const oneMonth = 31 * 24 * 60 * 60;
 const now = Math.floor(Date.now() / 1000);
 
-const generateAgroupedTransactionsByWeek = (startingDate, endingDate, transactions) => {
+const generateAgroupedTransactionsByWeek = (starting, ending, transactions) => {
   
+  let startingDate = Math.floor(new Date(starting)/1000) 
+  let endingDate = Math.floor(new Date(ending)/1000)
+
   // processar em semanas
   const weeks: TransactionsByWeek[] = [];
   while (startingDate <= endingDate) {
@@ -61,7 +65,7 @@ const generateAgroupedTransactionsByWeek = (startingDate, endingDate, transactio
   const sortedTransactions = sortTransactionsByStartingDate(transactions);
 
   // agrupa as transações pelas semanas
-  sortedTransactions.forEach((transaction) => {
+  sortedTransactions?.forEach((transaction) => {
     let lastWeek = 0;
     const transactionDate = new Date(transaction.transactionDate);
 
@@ -80,78 +84,12 @@ const generateAgroupedTransactionsByWeek = (startingDate, endingDate, transactio
   return weeks
 }
 
-const sortTransactionsByStartingDate = (transactions) => transactions.sort(
+const sortTransactionsByStartingDate = (transactions: Transaction[]) => transactions?.sort(
   (a, b) => new Date(a.startingDate) - new Date(b.startingDate)
 );
 
-export const findAllByPeriod = async (period: number) => {
+export const generateBarChartData = async ({ transactions, startingDate, endingDate }): Promise<ChartData> => {
 
-  let startingDate;
-  let endingDate;
-  const fixedEndingDate = now;
-  let transactions = []
-
-  if (period == PeriodConstants.ONE_WEEK) {
-    endingDate = now;
-    startingDate = now - 7 * oneDay;
-
-    transactions = await findAll({
-      onlyInclude: null,
-      endingDate,
-      startingDate,
-    });  
-  }
-
-  if (period == PeriodConstants.ONE_MONTH) {
-
-    endingDate = now;
-    startingDate = now - oneMonth;
-
-    // sempre começo do primeiro dia do mês
-    const days = new Date(startingDate * 1000).getDate();
-    startingDate -= (days - 1) * oneDay;
-
-    transactions = await findAll({
-      onlyInclude: null,
-      endingDate,
-      startingDate,
-    });  
-  }
-
-  if (period == PeriodConstants.THREE_MONTHS) {
-
-    endingDate = now;
-  
-    for(let i = 0; i<3; i++) {
-      startingDate = endingDate - oneMonth;
-
-      if(i == 2) {
-        // sempre começo do primeiro dia do mês
-        const days = new Date(startingDate * 1000).getDate();
-        startingDate -= (days - 1) * oneDay;  
-      }
-
-      const data = await findAll({
-        onlyInclude: null,
-        endingDate,
-        startingDate,
-      });  
-
-      transactions.push(...data)
-      endingDate = startingDate
-    }
-  }
-  
-  return {
-    transactions,
-    startingDate,
-    endingDate: fixedEndingDate,
-  }
-};
-
-export const generateBarChartData = async (period: number): Promise<ChartData> => {
-
-  const { transactions, startingDate, endingDate } = await findAllByPeriod(period)
   const weeks = generateAgroupedTransactionsByWeek(startingDate, endingDate, transactions)
 
   const weekLabels: string[] = []
@@ -197,12 +135,11 @@ export const generateBarChartData = async (period: number): Promise<ChartData> =
   return data;
 };
 
-export const generatePieChartData = async (period: number): Promise<ChartData> => {
+export const generatePieChartData = async (transactions: Transaction[]): Promise<ChartData> => {
 
-  const { transactions } = await findAllByPeriod(period)
   const categories = new Map();
 
-  transactions.forEach(({ category, value }) => {
+  transactions?.forEach(({ category, value }: { category: string, value: number}) => {
     if (categories.has(category)) {
       const res = categories.get(category) + value;
       categories.set(category, res);
@@ -223,9 +160,8 @@ export const generatePieChartData = async (period: number): Promise<ChartData> =
   return data;
 }; 
 
-export const generateLineChartData = async (period: number): Promise<ChartData> => {
+export const generateLineChartData = async ({ transactions, startingDate, endingDate }): Promise<ChartData> => {
 
-  const { transactions, startingDate, endingDate } = await findAllByPeriod(period)
   const weeks = generateAgroupedTransactionsByWeek(startingDate, endingDate, transactions)
 
   const weekLabels: string[] = []

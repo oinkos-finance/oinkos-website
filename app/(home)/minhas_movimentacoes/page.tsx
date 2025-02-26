@@ -1,29 +1,44 @@
 "use client";
 
 import { useTransactions } from "@/hooks/useTransactions";
+import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { Transaction } from "@/types/Transactions";
 import { PeriodConstants } from "@/util/Constants";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function MinhasMovimentacoes() {
-  const {
-    transactions,
-    hasNextPage,
-    fetchNextPage,
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const { 
+    transactions, 
     recurringTransactionsNumber,
     uniqueTransactionsNumber,
-    isModalOpen,
-    openModal,
-    closeModal,
-    setPeriod,
-  } = useTransactions();
+    period, 
+    setPeriod, 
+    incrementPage, 
+    decrementPage, 
+    startingDate, 
+    endingDate, 
+    page, 
+    initialData, 
+    setInitialData
+  } = useTransactionsPagination({ queryName: "allTransactions", onlyInclude: null})
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <h1 className="text-2xl text-black mb-6">Suas Movimentações</h1>
 
-      <div className="mb-4">
+      <input 
+        type="date" 
+        onChange={({ target }) => setInitialData(target?.value + "T10:00:00.000Z")} 
+        className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "  
+      />
+      <div className="mb-4 text-gray-700">
         <label
           className="block text-gray-700 text-sm font-bold mb-1"
           htmlFor="format"
@@ -37,7 +52,15 @@ export default function MinhasMovimentacoes() {
         >
           <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
           <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
+          <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
         </select>
+
+        <div className="flex items-center gap-10">
+          <button onClick={decrementPage}>AVANÇAR</button>
+          <button onClick={incrementPage}>VOLTAR</button>
+        </div>
+        <div>De {startingDate?.toLocaleDateString()} até {endingDate?.toLocaleDateString()}</div>
+
       </div>
       {transactions ? (
         <div>
@@ -139,7 +162,6 @@ export default function MinhasMovimentacoes() {
                 ))}
               </tbody>
             </table>
-            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (

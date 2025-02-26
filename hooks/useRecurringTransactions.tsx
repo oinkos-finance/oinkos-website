@@ -2,11 +2,8 @@ import { useState } from "react";
 import {
   createNewRecurringTransaction,
   getNextRecurringTransactions,
-  //editRecurringTransaction,
-  infiniteFindAll,
 } from "@/services/RecurringTransactionService";
 import {
-  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -17,8 +14,6 @@ import {
 } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { getCategories } from "@/services/CommonTransactionsService";
-
 
 type RecurringTransaction = {
   title: string,
@@ -89,47 +84,17 @@ export const useRecurringTransactions = () => {
 
   const closeModalEdit = () => setIsModalEditOpen(false);
 
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ["recurringTransactions"],
-    queryFn: infiniteFindAll,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
-
   const createMutation = useMutation({
     mutationFn: createNewRecurringTransaction,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
   });
 
-  // const editMutation = useMutation({
-  //   mutationFn: editRecurringTransaction,
-  //   // TODO: aqui no delete eh so receber o objeto alterado e atualizar ele aq
-    /* onSuccess: (data) => {
-          queryClient.setQueryData(["recurringTransactions"], (cache: RecurringTransaction[] | undefined) => {
-            
-            let c = cache ? [...cache, data] : [data];
-            console.log(c)
-            return c;
-          })
-        } */
-  //   onSuccess: () =>
-  //     queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
-  // });
-
-  let transactions: any[] = []
-  data?.pages.forEach(({ data }) => data.forEach( (t: any)  => transactions.push(t)))
-
-  const { data: categories } = useQuery({
-    queryKey: ["getCategories"],
-    queryFn: getCategories
-  })
-
   const { data: nextRecurringTransactions } = useQuery({
     queryKey: [""],
     queryFn: getNextRecurringTransactions
   })
-
+      
   return {
     isModalDeleteOpen,
     isModalAddOpen,
@@ -140,10 +105,7 @@ export const useRecurringTransactions = () => {
     closeModalAdd,
     handleEdition,
     closeModalEdit,
-    transactions,
     nextRecurringTransactions,
-    fetchNextPage,
-    hasNextPage,
     createMutation,
     //editMutation,
     handleSubmit,
@@ -151,8 +113,7 @@ export const useRecurringTransactions = () => {
     reset,
     errors,
     register,
-    categories,
     initialData,
-    handleEditionInitial
+    handleEditionInitial,
   };
 };

@@ -90,7 +90,7 @@ export const getNextRecurringTransactions = async () => {
     const startingDate = Math.floor(Date.now() / 1000);
     const endingDate = startingDate + 7 * 24 * 60 * 60
 
-    const transactions = await findAll({
+    const { transactions } = await findAll({
       onlyInclude: "recurring",
       startingDate,
       endingDate,
