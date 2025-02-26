@@ -7,6 +7,9 @@ import { SubmitHandler } from "react-hook-form";
 import { useUniqueTransactions } from "@/hooks/useUniqueTransactions";
 import getCookies from "@/server/cookies/getCookies";
 import { useQueryClient } from "@tanstack/react-query";
+import { PeriodConstants } from "@/util/Constants";
+import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
+import { Transaction, UniqueTransaction } from "@/types/Transactions";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -16,32 +19,14 @@ interface ModalProps {
 
 interface FormProps {
   onSubmit: SubmitHandler<FormValues>;
-  buttonText: string
-}
-
-type UniqueTransaction = {
-  // id: string,
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  transactionDate: string
-}
-
-type UniqueTransactionId = {
-  id: string,
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  transactionDate: string
+  buttonText: string;
 }
 
 export default function SeusGastosVariaveis() {
-  const [, setError] = useState<string | null>(null)
-  const [, setIsSubmitSuccessful] = useState<boolean>(false)
-  const [teste, setTeste] = useState<UniqueTransaction | null>()
-  const [id, setId] = useState<string>('')
+  const [, setError] = useState<string | null>(null);
+  const [, setIsSubmitSuccessful] = useState<boolean>(false);
+  const [teste] = useState<Transaction | null>();
+  const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
   const {
     handleEdition,
@@ -53,17 +38,25 @@ export default function SeusGastosVariaveis() {
     closeModalAdd,
     closeModalDelete,
     closeModalEdit,
-    transactions,
     createMutation,
-    hasNextPage,
-    fetchNextPage,
     errors,
     reset,
     register,
     handleSubmit,
     initialData,
-    handleEditionInitial
+    handleEditionInitial,
   } = useUniqueTransactions();
+  
+  const {
+    transactions,
+    setPeriod,
+    incrementPage,
+    decrementPage,
+    startingDate,
+    endingDate,
+    categories,
+    setInitialData,
+  } = useTransactionsPagination<UniqueTransaction>({ queryName: "uniqueTransactions", onlyInclude: "unique"});
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -145,19 +138,19 @@ export default function SeusGastosVariaveis() {
         >
           Categoria
         </label>
-        <select
-          id="category"
+        <input
+          type="text"
+          list="categories"
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           {...register("category")}
-        >
-          <option value="">Selecione um campo</option>
-          <option value="Academia">Academia</option>
-          <option value="Aluguel">Aluguel</option>
-          <option value="Roupas">Roupas</option>
-          <option value="Farmácia">Farmácia</option>
-          <option value="Mercado">Mercado</option>
-          <option value="Outros">Outros</option>
-        </select>
+        />
+        <datalist id="categories">
+          {categories?.map((category: string, i: number) => (
+            <option key={i} value={category}>
+              {category}
+            </option>
+          ))}
+        </datalist>
         <label className="text-red-500 mb-3 text-md">
           {errors.category?.message}
         </label>
@@ -178,7 +171,7 @@ export default function SeusGastosVariaveis() {
           {errors.transactionDate?.message}
         </label>
       </div>
-      
+
       <div className="w-full mt-2 flex justify-center">
         <button
           type="submit"
@@ -190,27 +183,26 @@ export default function SeusGastosVariaveis() {
     </form>
   );
 
-
   useEffect(() => {
-    console.log(teste, 'aqui')
-  }, [teste])
+    console.log(teste, "aqui");
+  }, [teste]);
 
   async function editInformation(data: FormValues) {
-
     const formattedData = {
       ...data,
-      transactionDate: new Date(data.transactionDate).toISOString().split("T")[0] + "T00:00:00Z"
+      transactionDate:
+        new Date(data.transactionDate).toISOString().split("T")[0] +
+        "T00:00:00Z",
     };
 
-    setIsSubmitSuccessful(false)
-    setError(null)
+    setIsSubmitSuccessful(false);
+    setError(null);
 
-    if (!initialData)
-      return
+    if (!initialData) return;
 
     const updatedFields = Object.fromEntries(
       Object.entries(formattedData).filter(([key, value]) => {
-        return value !== initialData[key as keyof UniqueTransaction];
+        return value !== initialData[key as keyof Transaction];
       })
     );
 
@@ -219,81 +211,119 @@ export default function SeusGastosVariaveis() {
       return;
     }
 
-    const token = await getCookies()
+    const token = await getCookies();
     const options = {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        accept: 'application/json', 'content-type': 'application/json',
-        authorization: `Bearer ${token}`
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updatedFields),
     };
 
     console.log("Enviando para a API:", options.body);
     fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
-      .then(res => res.json().then(data => ({ status: res.status, data }))
-        .then(async res => {
-          console.log(res, 'teste')
+      .then((res) =>
+        res
+          .json()
+          .then((data) => ({ status: res.status, data }))
+          .then(async (res) => {
+            console.log(res, "teste");
 
-          if (res.status === 400)
-            setError('Sintaxe de resposta mal formatada. Verifique se os dados estão corretos')
-          else if (res.status === 404)
-            setError('Transação não encontrada.')
-          else if (res.status === 422)
-            setError('Valores inválidos.')
-          else if (res.status === 500)
-            setError('Erro interno no servidor.')
-          else {
-            setIsSubmitSuccessful(true)
-            reset()
-            console.log("sucesso!")
-
-          }
-
-        })
-        .catch(err => console.error(err)))
-        queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] });
+            if (res.status === 400)
+              setError(
+                "Sintaxe de resposta mal formatada. Verifique se os dados estão corretos"
+              );
+            else if (res.status === 404) setError("Transação não encontrada.");
+            else if (res.status === 422) setError("Valores inválidos.");
+            else if (res.status === 500) setError("Erro interno no servidor.");
+            else {
+              setIsSubmitSuccessful(true);
+              reset();
+              console.log("sucesso!");
+            }
+          })
+          .catch((err) => console.error(err))
+      )
+      .finally(() =>
+        queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] })
+      );
   }
 
   async function deleteTransaction(id: string) {
-
-    const token = await getCookies()
+    const token = await getCookies();
     const options = {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        accept: 'application/json', 'content-type': 'application/json',
-        authorization: `Bearer ${token}`
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
       },
     };
 
     fetch(`https://api.oinkos.samnsc.com/transaction/${id}`, options)
-      .then(res => res.json().then(data => ({ status: res.status, data }))
-        .then(async res => {
-          console.log(res, 'teste')
+      .then((res) =>
+        res
+          .json()
+          .then((data) => ({ status: res.status, data }))
+          .then(async (res) => {
+            console.log(res, "teste");
 
-          if (res.status === 404)
-            setError('Transação não encontrada.')
-          else if (res.status === 500)
-            setError('Erro interno no servidor.')
-          else {
-            setIsSubmitSuccessful(true)
-            reset()
-            console.log("sucesso!")
-          }
-
-        })
-        .catch(err => console.error(err)))
-        queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] });
-    
+            if (res.status === 404) setError("Transação não encontrada.");
+            else if (res.status === 500) setError("Erro interno no servidor.");
+            else {
+              setIsSubmitSuccessful(true);
+              reset();
+              console.log("sucesso!");
+            }
+          })
+          .catch((err) => console.error(err))
+      )
+      .finally(() =>
+        queryClient.invalidateQueries({ queryKey: ["uniqueTransactions"] })
+      );
   }
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
+
+        <div className="mb-4">
+          <input
+            type="date"
+            onChange={({ target }) => setInitialData(new Date(target?.value + "T10:00:00.000Z"))} 
+            className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+          />
+          <div className="mb-4 text-gray-700">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-1"
+              htmlFor="format"
+            >
+              Período
+            </label>
+            <select
+              id="paymentType"
+              className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+              onClick={(event: React.MouseEvent<HTMLSelectElement>) => setPeriod(Number(event.currentTarget.value))}
+            >
+              <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
+              <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
+              <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
+            </select>
+
+            <div className="flex items-center gap-10 mt-2 mb-2">
+              <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
+              <button onClick={incrementPage} className=" bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
+            </div>
+            <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
+          </div>
+        </div>
+
         <h1 className="text-3xl text-black mb-6">Seus Gastos Variáveis</h1>
         <button
           onClick={openModalAdd}
-          className="bg-[#B6C8C6] text-black px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
+          className="bg-[#B6C8C6] text-black text-lg px-6 py-2 rounded-xl hover:bg-[#a3b6b4]"
         >
           Adicionar
         </button>
@@ -313,44 +343,57 @@ export default function SeusGastosVariaveis() {
                 </tr>
               </thead>
               <tbody>
-                {transactions?.map((transaction: UniqueTransactionId, index) => (
-                  <tr
-                    key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
-                  >
-                    <td className="text-gray-800 font-bold p-4">
-                      {transaction.value}
-                    </td>
-                    <td className="text-gray-600 p-4">
-                      {transaction.title}
-                    </td>
-                    <td className="p-4">
-                      <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {transaction.paymentType}
-                      </span>
-                    </td>
-                    <td className="text-gray-600 p-4">{transaction.category}</td>
-
-                    <td className="text-gray-600 p-4">{new Date(transaction.transactionDate).toLocaleDateString()}</td>
-                    <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
-                      <div
-                        onClick={() => { openModalDelete(); setId(transaction.id) }}
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                      >
-                        <Trash size={18} className=" text-black" />
-                      </div>
-                      <div
-                        onClick={() => { handleEditionInitial(transaction); setId(transaction.id) }}
-                        className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
-                      >
-                        <Pencil size={18} className=" text-black" />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {transactions?.map(
+                  (transaction: UniqueTransaction, index: number) => (
+                    <tr
+                      key={index}
+                      className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
+                    >
+                      <td className="text-gray-800 font-bold p-4">
+                        {transaction.value}
+                      </td>
+                      <td className="text-gray-600 p-4">{transaction.title}</td>
+                      <td className="p-4">
+                        <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
+                          {transaction.paymentType === 'directTransfer' ? 'Pix' : 
+                        transaction.paymentType === 'creditCard' ? 'Crédito' :
+                        transaction.paymentType === 'debitCard' ? 'Débito' :
+                        'Dinheiro'}
+                        </span>
+                      </td>
+                      <td className="text-gray-600 p-4">
+                        {transaction.category}
+                      </td>
+                      <td className="text-gray-600 p-4">
+                        {new Date(
+                          transaction.transactionDate
+                        ).toLocaleDateString()}
+                      </td>
+                      <td className="text-gray-600 p-4 flex gap-2 items-center justify-center">
+                        <div
+                          onClick={() => {
+                            openModalDelete();
+                            setId(transaction.id);
+                          }}
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        >
+                          <Trash size={18} className=" text-black" />
+                        </div>
+                        <div
+                          onClick={() => {
+                            handleEditionInitial(transaction);
+                            setId(transaction.id);
+                          }}
+                          className="p-2 bg-[#D9D9D9] rounded-full cursor-pointer"
+                        >
+                          <Pencil size={18} className=" text-black" />
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
-            {hasNextPage && <button onClick={() => fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -381,10 +424,11 @@ export default function SeusGastosVariaveis() {
           <Form
             onSubmit={(data) => {
               editInformation(data);
-              handleEdition(data)
+              handleEdition(data);
               //reset();
               closeModalEdit();
-            }} buttonText="Editar"
+            }}
+            buttonText="Editar"
           />
         </Modal>
       )}
@@ -396,7 +440,13 @@ export default function SeusGastosVariaveis() {
             Deseja excluir esse gasto? Essa ação é irrevertível!
           </p>
           <div className="w-full mt-2 flex justify-center">
-            <button className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition" onClick={() => { deleteTransaction(id); closeModalDelete() }}>
+            <button
+              className="bg-[#73B48C]/90 mb-5 text-black py-2 px-6 rounded-xl hover:bg-[#6dac85]/95 transition"
+              onClick={() => {
+                deleteTransaction(id);
+                closeModalDelete();
+              }}
+            >
               Excluir
             </button>
           </div>

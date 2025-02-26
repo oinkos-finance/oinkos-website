@@ -1,10 +1,15 @@
 export interface Transaction {
+  id: string;
   transactionType: 'recurring' | 'unique';
   title: string;
   value: number;
-  paymentType: string;
+  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
   category: string;
-  id: string;
+  startingDate: Date;
+  endingDate: Date;
+  transactionDate: Date;
+  transactionStatus: 'credited' | 'skipped' | undefined;
+  occurrence: number;
 }
 
 export interface UniqueTransaction extends Transaction {
@@ -14,6 +19,7 @@ export interface UniqueTransaction extends Transaction {
 export interface RecurringTransaction extends Transaction {
   startingDate: Date;
   endingDate: Date;
-  transactionStatus: 'credited' | 'skipped';
-  ocurrence: number;
+  transactionStatus: 'credited' | 'skipped' | undefined;
+  occurrence: number;
+  transactionDate: Date;
 }

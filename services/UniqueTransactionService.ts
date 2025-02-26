@@ -2,8 +2,7 @@
 
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateUniqueTransaction";
-import { findAll } from "./CommonTransactionsService";
-import { capitalizeFirstLetter } from "@/util/capitalizeString";
+import { capitalizeFirstLetter } from "@/util/String";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -13,30 +12,6 @@ interface RequestBody {
   category: string;
   transactionDate: string;
 }
-
-export const infiniteFindAll = async ({ pageParam = 0 }) => {
-  // buscar po padrão a cada mês
-  const oneMonth = 31 * 24 * 60 * 60;
-  const now = Math.floor(Date.now() / 1000);
-
-  const endingDate = now - pageParam * oneMonth;
-  const startingDate = endingDate - oneMonth;
-
-  // função que se repete em cada serviço
-  const transactions = await findAll({
-    onlyInclude: "unique",
-    startingDate,
-    endingDate,
-  });
-
-  const hasMore = transactions.length > 0;
-
-  return {
-    data: transactions,
-    currentPage: pageParam,
-    nextPage: hasMore ? pageParam + 1 : null,
-  };
-};
 
 export const createNewUniqueTransaction = async (data: FormValues) => {
   try {
@@ -68,7 +43,45 @@ export const createNewUniqueTransaction = async (data: FormValues) => {
       options
     );
 
-    console.log(body)
+    return await response.json();
+  } catch (err) {
+    console.error("Erro ao criar novo gasto variável:", err);
+  }
+};
+
+interface revertRecurringTransactionRequestBody {  
+  action: "skip" | "revert";
+  occurrence: number | undefined;
+}
+
+interface revertRecurringTransactionParams extends revertRecurringTransactionRequestBody {  
+  id: string | undefined;
+}
+
+export const revertRecurringTransaction = async (data: revertRecurringTransactionParams) => {
+  try {
+    const token = await getCookies();
+
+    const body: revertRecurringTransactionRequestBody = {
+      action: "skip",
+      occurrence: data.occurrence,
+    };
+
+    const options = {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    };
+
+    const response = await fetch(
+      `https://api.oinkos.samnsc.com/transaction/${data.id}`,
+      options
+    );
+
     console.log(response)
 
     return await response.json();

@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import getCookies from "../cookies/getCookies";
 
 type User = {

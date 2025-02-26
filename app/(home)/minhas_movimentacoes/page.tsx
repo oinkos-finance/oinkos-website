@@ -1,28 +1,54 @@
 "use client";
 
-import { useTransactions } from "@/hooks/useTransactions";
+import { useRecurringTransactions } from "@/hooks/useRecurringTransactions";
+import { useTransactionsPagination } from "@/hooks/useTransactionsPagination";
 import { Transaction } from "@/types/Transactions";
+import { PeriodConstants } from "@/util/Constants";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function MinhasMovimentacoes() {
+  const [transactionEdit, setTransaction] = useState<Transaction>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleEdition = (data: Transaction) => {
+    openModal();
+    setTransaction(data);
+    console.log(data);
+  };
+
   const {
     transactions,
-    hasNextPage,
-    fetchNextPage,
     recurringTransactionsNumber,
     uniqueTransactionsNumber,
-    isModalOpen,
-    openModal,
-    closeModal,
     setPeriod,
-  } = useTransactions();
+    incrementPage,
+    decrementPage,
+    startingDate,
+    endingDate,
+    setInitialData,
+  } = useTransactionsPagination<Transaction>({
+    queryName: "allTransactions",
+    onlyInclude: null,
+  });
+
+  const { revertMutation } = useRecurringTransactions();
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
       <h1 className="text-2xl text-black mb-6">Suas Movimentações</h1>
 
-      <div className="mb-4">
+      <input
+        type="date"
+        onChange={({ target }) =>
+          setInitialData(new Date(target?.value + "T10:00:00.000Z"))
+        }
+        className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
+      />
+      <div className="mb-4 text-gray-700">
         <label
           className="block text-gray-700 text-sm font-bold mb-1"
           htmlFor="format"
@@ -32,11 +58,33 @@ export default function MinhasMovimentacoes() {
         <select
           id="paymentType"
           className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-          onClick={({ target }) => setPeriod(target.value)}
+          onClick={(event: React.MouseEvent<HTMLSelectElement>) =>
+            setPeriod(Number(event.currentTarget.value))
+          }
         >
-          <option value="7">Uma semana</option>
-          <option value="31">Um mês</option>
+          <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
+          <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
+          <option value={PeriodConstants.THREE_MONTHS}>Três meses</option>
         </select>
+
+        <div className="flex items-center gap-10 mt-2">
+          <button
+            onClick={decrementPage}
+            className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2"
+          >
+            AVANÇAR
+          </button>
+          <button
+            onClick={incrementPage}
+            className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2"
+          >
+            VOLTAR
+          </button>
+        </div>
+        <div>
+          De {new Date(startingDate)?.toLocaleDateString()} até{" "}
+          {new Date(endingDate)?.toLocaleDateString()}
+        </div>
       </div>
       {transactions ? (
         <div>
@@ -96,7 +144,9 @@ export default function MinhasMovimentacoes() {
                 {transactions?.map((transaction: Transaction, index) => (
                   <tr
                     key={index}
-                    className="bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center"
+                    className={`bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center transition-opacity ${
+                      transaction.transactionStatus === "skipped" ? "opacity-50" : "opacity-100"
+                    }`}
                   >
                     <td className="text-gray-800 font-bold p-4">
                       {transaction.value}
@@ -104,7 +154,13 @@ export default function MinhasMovimentacoes() {
                     <td className="text-gray-600 p-4">{transaction.title}</td>
                     <td className="p-4">
                       <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                        {transaction.paymentType}
+                        {transaction.paymentType === "directTransfer"
+                          ? "Pix"
+                          : transaction.paymentType === "creditCard"
+                          ? "Crédito"
+                          : transaction.paymentType === "debitCard"
+                          ? "Débito"
+                          : "Dinheiro"}
                       </span>
                     </td>
                     <td className="p-4">
@@ -115,7 +171,9 @@ export default function MinhasMovimentacoes() {
                             : "bg-variable_outgoing text-amber-800"
                         }`}
                       >
-                        {transaction.transactionType}
+                        {transaction.transactionType === "recurring"
+                          ? "fixo"
+                          : "variável"}
                       </span>
                     </td>
                     <td className="text-gray-600 p-4">
@@ -124,13 +182,15 @@ export default function MinhasMovimentacoes() {
                     <td className="text-gray-600 p-4">
                       {transaction.transactionType === "recurring" && (
                         <div
-                          onClick={openModal}
+                          onClick={() => handleEdition(transaction)}
                           className="flex items-center justify-center"
                         >
-                          <RotateCcw
-                            size={24}
-                            className=" hover:scale-105 cursor-pointer"
-                          />
+                          { transaction.transactionStatus !== "skipped" && (
+                            <RotateCcw
+                              size={24}
+                              className=" hover:scale-105 cursor-pointer"
+                            />
+                          )}
                         </div>
                       )}
                     </td>
@@ -138,7 +198,6 @@ export default function MinhasMovimentacoes() {
                 ))}
               </tbody>
             </table>
-            {hasNextPage && <button onClick={fetchNextPage}>ver mais</button>}
           </div>
         </div>
       ) : (
@@ -169,7 +228,16 @@ export default function MinhasMovimentacoes() {
               seja exibido durante as movimentações desse mês.
             </p>
             <div className="mt-2 flex justify-center">
-              <button className="bg-[#73B48C]/90 mb-5 text-black  py-1 px-6 rounded-xl hover:bg-[#6dac85]/95 transition">
+              <button
+                className="bg-[#73B48C]/90 mb-5 text-black  py-1 px-6 rounded-xl hover:bg-[#6dac85]/95 transition"
+                onClick={() =>
+                  revertMutation.mutateAsync({
+                    id: transactionEdit?.id,
+                    occurrence: transactionEdit?.occurrence,
+                    action: "revert",
+                  })
+                }
+              >
                 Reverter
               </button>
             </div>

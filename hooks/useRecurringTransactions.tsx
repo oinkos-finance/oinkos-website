@@ -1,12 +1,11 @@
 import { useState } from "react";
 import {
   createNewRecurringTransaction,
-  //editRecurringTransaction,
-  infiniteFindAll,
+  getNextRecurringTransactions,
 } from "@/services/RecurringTransactionService";
 import {
-  useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import {
@@ -15,16 +14,8 @@ import {
 } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-
-type RecurringTransaction = {
-  title: string,
-  value: number,
-  category: string,
-  paymentType: "directTransfer" | "cash" | "creditCard" | "debitCard",
-  startingDate: string,
-  endingDate: string,
-}
+import { RecurringTransaction } from "@/types/Transactions";
+import { revertRecurringTransaction } from "@/services/UniqueTransactionService";
 
 export const useRecurringTransactions = () => {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
@@ -61,14 +52,14 @@ export const useRecurringTransactions = () => {
   };
   const closeModalAdd = () => setIsModalAddOpen(false);
 
-  const handleEdition = (data: RecurringTransaction) => {
+  const handleEdition = (data: FormValues) => {
     setValue("title", data.title);
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("startingDate", data.startingDate.split("T")[0]);
+    setValue("startingDate", data.startingDate.toString().split("T")[0]);
     if(data.endingDate)
-      setValue("endingDate", data.endingDate.split("T")[0]);
+      setValue("endingDate", data.endingDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
   };
 
@@ -77,21 +68,14 @@ export const useRecurringTransactions = () => {
     setValue("value", data.value);
     setValue("category", data.category);
     setValue("paymentType", data.paymentType);
-    setValue("startingDate", data.startingDate.split("T")[0]);
+    setValue("startingDate", data.startingDate.toString().split("T")[0]);
     if(data.endingDate)
-      setValue("endingDate", data.endingDate.split("T")[0]);
+      setValue("endingDate", data.endingDate.toString().split("T")[0]);
     setIsModalEditOpen(true);
     setInitialData(data)
   };
 
   const closeModalEdit = () => setIsModalEditOpen(false);
-
-  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ["recurringTransactions"],
-    queryFn: infiniteFindAll,
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
 
   const createMutation = useMutation({
     mutationFn: createNewRecurringTransaction,
@@ -99,24 +83,17 @@ export const useRecurringTransactions = () => {
       queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
   });
 
-  // const editMutation = useMutation({
-  //   mutationFn: editRecurringTransaction,
-  //   // TODO: aqui no delete eh so receber o objeto alterado e atualizar ele aq
-    /* onSuccess: (data) => {
-          queryClient.setQueryData(["recurringTransactions"], (cache: RecurringTransaction[] | undefined) => {
-            
-            let c = cache ? [...cache, data] : [data];
-            console.log(c)
-            return c;
-          })
-        } */
-  //   onSuccess: () =>
-  //     queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
-  // });
+  const revertMutation = useMutation({
+    mutationFn: revertRecurringTransaction,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["allTransactions"] }),
+  });
 
-  let transactions: any[] = []
-  data?.pages.forEach(({ data }) => data.forEach( (t: any)  => transactions.push(t)))
-
+  const { data: nextRecurringTransactions } = useQuery({
+    queryKey: ["getNextRecurring"],
+    queryFn: getNextRecurringTransactions
+  })
+      
   return {
     isModalDeleteOpen,
     isModalAddOpen,
@@ -127,17 +104,15 @@ export const useRecurringTransactions = () => {
     closeModalAdd,
     handleEdition,
     closeModalEdit,
-    transactions,
-    fetchNextPage,
-    hasNextPage,
+    nextRecurringTransactions,
     createMutation,
-    //editMutation,
     handleSubmit,
     setValue,
     reset,
     errors,
     register,
     initialData,
-    handleEditionInitial
+    handleEditionInitial,
+    revertMutation
   };
 };

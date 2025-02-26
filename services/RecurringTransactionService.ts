@@ -3,7 +3,8 @@
 import getCookies from "../server/cookies/getCookies";
 import { FormValues } from "@/schemas/formSchemaCreateRecurringTransaction";
 import { findAll } from "./CommonTransactionsService";
-import { capitalizeFirstLetter } from "@/util/capitalizeString";
+import { capitalizeFirstLetter } from "@/util/String";
+import { RecurringTransaction } from "@/types/Transactions";
 
 interface RequestBody {
   transactionType: "recurring" | "unique";
@@ -14,32 +15,6 @@ interface RequestBody {
   startingDate: string;
   endingDate: string | null;
 }
-
-export const infiniteFindAll = async ({ pageParam = 0 }) => {
-  // buscar po padrão a cada mês
-  const oneMonth = 31 * 24 * 60 * 60;
-  const now = Math.floor(Date.now() / 1000);
-
-  const endingDate = now - pageParam * oneMonth;
-  const startingDate = endingDate - oneMonth;
-
-  // função que se repete em cada serviço
-  const transactions = await findAll({
-    onlyInclude: "recurring",
-    startingDate,
-    endingDate,
-  });
-
-  console.log(transactions)
-
-  const hasMore = transactions.length > 0;
-
-  return {
-    data: transactions,
-    currentPage: pageParam,
-    nextPage: hasMore ? pageParam + 1 : null,
-  };
-};
 
 export const createNewRecurringTransaction = async (data: FormValues) => {
   try {
@@ -83,63 +58,23 @@ export const createNewRecurringTransaction = async (data: FormValues) => {
   }
 };
 
-// export const editRecurringTransaction = async (data: FormValues) => {
-//   try {
-//     const token = await getCookies();
+export const getNextRecurringTransactions = async () => {
+  try {
+    
+    const startingDate = Math.floor(Date.now() / 1000);
+    const endingDate = startingDate + 7 * 24 * 60 * 60
 
-//     const { title, category, paymentType } = data;
+    const { transactions } = await findAll<RecurringTransaction>({
+      onlyInclude: "recurring",
+      startingDate,
+      endingDate,
+    })
+    
+    console.log(transactions)
 
-//     const body: RequestBody = {
-//       title,
-//       category,
-//       paymentType,
-//     };
+    return transactions;
 
-//     const options = {
-//       method: "PATCH",
-//       headers: {
-//         accept: "application/json",
-//         "Content-Type": "application/json",
-//         authorization: `Bearer ${token}`,
-//       },
-//       body: JSON.stringify(body),
-//     };
-
-//     const response = await fetch(
-//       "https://api.oinkos.samnsc.com/transaction",
-//       options
-//     );
-
-//     console.log(response);
-
-//     return await response.json();
-//   } catch (err) {
-//     console.error("Erro ao editar gasto recorrente:", err);
-//   }
-// };
-
-// export const deleteRecurringTransaction = async (data: FormValues) => {
-//   try {
-//     const token = await getCookies();
-
-//     const options = {
-//       method: "DELETE",
-//       headers: {
-//         accept: "application/json",
-//         "Content-Type": "application/json",
-//         authorization: `Bearer ${token}`,
-//       },
-//     };
-
-//     const response = await fetch(
-//       "https://api.oinkos.samnsc.com/transaction",
-//       options
-//     );
-
-//     console.log(response);
-
-//     return await response.json();
-//   } catch (err) {
-//     console.error("Erro ao deletar gasto recorrente:", err);
-//   }
-// };
+  } catch (err) {
+    console.error("Erro ao buscar lista de transações:", err);
+  }
+}
