@@ -145,7 +145,9 @@ export default function MinhasMovimentacoes() {
                   <tr
                     key={index}
                     className={`bg-white shadow-sm rounded-md hover:bg-[#D9D9D9]/25 border-b last:border-b-0 text-center transition-opacity ${
-                      transaction.transactionStatus === "skipped" ? "opacity-50" : "opacity-100"
+                      transaction.transactionStatus === "skipped"
+                        ? "opacity-50"
+                        : "opacity-100"
                     }`}
                   >
                     <td className="text-gray-800 font-bold p-4">
@@ -157,10 +159,10 @@ export default function MinhasMovimentacoes() {
                         {transaction.paymentType === "directTransfer"
                           ? "Pix"
                           : transaction.paymentType === "creditCard"
-                          ? "Crédito"
-                          : transaction.paymentType === "debitCard"
-                          ? "Débito"
-                          : "Dinheiro"}
+                            ? "Crédito"
+                            : transaction.paymentType === "debitCard"
+                              ? "Débito"
+                              : "Dinheiro"}
                       </span>
                     </td>
                     <td className="p-4">
@@ -185,7 +187,7 @@ export default function MinhasMovimentacoes() {
                           onClick={() => handleEdition(transaction)}
                           className="flex items-center justify-center"
                         >
-                          { transaction.transactionStatus !== "skipped" && (
+                          {transaction.transactionStatus !== "skipped" && (
                             <RotateCcw
                               size={24}
                               className=" hover:scale-105 cursor-pointer"

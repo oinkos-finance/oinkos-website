@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import setCookies from "../../server/cookies/cookies";
 
 export default function Cadastro() {
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +14,7 @@ export default function Cadastro() {
     handleSubmit,
     register,
     formState: { errors },
-    reset
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaRegister),
     defaultValues: {
@@ -27,48 +26,47 @@ export default function Cadastro() {
   });
 
   async function teste(data: FormValues) {
-    setError(null)
-    setIsSubmitSuccessful(false)
+    setError(null);
+    setIsSubmitSuccessful(false);
     const options = {
-      method: 'POST',
-      headers: { accept: 'application/json', 'content-type': 'application/json' },
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
       body: JSON.stringify({
         username: data.username,
         email: data.email,
         password: data.password,
-        confirmPassword: data.confirmPassword
+        confirmPassword: data.confirmPassword,
       }),
     };
 
-    fetch('https://api.oinkos.samnsc.com/signup', options)
-      .then(res => res.json().then(data => ({ status: res.status, data }))
-      .then(async res => {
-        console.log(res, 'teste')
-        
-        if (res.status === 400){
-          if(res.data.reason === 'Mismatched passwords')
-            setError('É obrigatório colocar a senha e confirmá-la.')
-          else if(res.data.reason === 'Malformed syntax')
-            setError('Sintaxe de resposta mal formatada.')
-          else
-            setError('Já existe um usuário com esse username ou e-mail.')
-        }
-        else if(res.status === 422)
-          setError('Valores inválidos.')
-        else if(res.status === 500)
-          setError('Erro interno no servidor.')
-        else{
-          setIsSubmitSuccessful(true)
-          reset()
-        }
+    fetch("https://api.oinkos.samnsc.com/signup", options).then((res) =>
+      res
+        .json()
+        .then((data) => ({ status: res.status, data }))
+        .then(async (res) => {
+          console.log(res, "teste");
 
-      })
-      .catch(err => console.error(err)))
+          if (res.status === 400) {
+            if (res.data.reason === "Mismatched passwords")
+              setError("É obrigatório colocar a senha e confirmá-la.");
+            else if (res.data.reason === "Malformed syntax")
+              setError("Sintaxe de resposta mal formatada.");
+            else setError("Já existe um usuário com esse username ou e-mail.");
+          } else if (res.status === 422) setError("Valores inválidos.");
+          else if (res.status === 500) setError("Erro interno no servidor.");
+          else {
+            setIsSubmitSuccessful(true);
+            reset();
+          }
+        })
+        .catch((err) => console.error(err)),
+    );
 
-    console.log(data, 'teste1')
-
+    console.log(data, "teste1");
   }
-
 
   return (
     <div className="flex bg-[#E5E7E5] items-center justify-center min-h-screen">
@@ -134,11 +132,9 @@ export default function Cadastro() {
           </span>
         )}
 
-        {
-          error && <span className=" text-red-800 text-center text-lg">
-            {error}
-          </span>
-        }
+        {error && (
+          <span className=" text-red-800 text-center text-lg">{error}</span>
+        )}
 
         <div className="flex gap-1">
           <span className="text-[#020202] text-md md:text-lg lg:text-xl">

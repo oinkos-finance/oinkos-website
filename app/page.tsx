@@ -6,16 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Login() {
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const {
     handleSubmit,
     register,
-    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaLogin),
@@ -26,37 +25,43 @@ export default function Login() {
   });
 
   async function teste(data: FormValues) {
-    setError(null)
-    const username = data.username
-    const password = data.password
+    setError(null);
+    const username = data.username;
+    const password = data.password;
 
     const credentials = `${username}:${password}`;
 
     const encodedCredentials = btoa(credentials);
 
     const options = {
-      method: 'POST',
-      headers: { accept: 'application/json', authorization: `Basic ${encodedCredentials}` }
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        authorization: `Basic ${encodedCredentials}`,
+      },
     };
 
-    fetch('https://api.oinkos.samnsc.com/login', options)
-      .then(res => res.json().then(data => ({ status: res.status, data }))
-        .then(res => {
-
-          if (res.status === 401) {
-            setError('Credenciais inválidas. Por favor, verifique seu username e senha.')
-          }
-          else if(res.status === 500){
-            setError('Interno interno no servidor. Tente novamente mais tarde')
-          }
-          else {
-            setCookies(res.data.token),
-            router.push('/pagina_inicial')
-          }
-        }
-        ))
-        .catch(err => console.error(err))
-
+    fetch("https://api.oinkos.samnsc.com/login", options)
+      .then((res) =>
+        res
+          .json()
+          .then((data) => ({ status: res.status, data }))
+          .then((res) => {
+            if (res.status === 401) {
+              setError(
+                "Credenciais inválidas. Por favor, verifique seu username e senha.",
+              );
+            } else if (res.status === 500) {
+              setError(
+                "Interno interno no servidor. Tente novamente mais tarde",
+              );
+            } else {
+              use(setCookies(res.data.token));
+              router.push("/pagina_inicial");
+            }
+          }),
+      )
+      .catch((err) => console.error(err));
   }
 
   return (
@@ -89,11 +94,11 @@ export default function Login() {
           </label>
         </div>
 
-        {
-          error && <span className=" text-red-800 text-center text-lg px-4">
+        {error && (
+          <span className=" text-red-800 text-center text-lg px-4">
             {error}
           </span>
-        }
+        )}
 
         <div className="flex gap-1 md:gap-2">
           <span className="text-[#020202] text-md md:text-lg lg:text-lg">

@@ -7,11 +7,13 @@ import { useRecurringTransactions } from "@/hooks/useRecurringTransactions";
 import { useTransactionReport } from "@/hooks/useTransactionReport";
 import getUser from "@/server/getUser/getUser";
 import { RecurringTransaction } from "@/types/Transactions";
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+
+export const dynamic = "force-dynamic";
 
 interface User {
   id: number;
-  name: string;
+  username: string;
   email: string;
   salary: number;
 }
@@ -20,7 +22,7 @@ export default function PaginaInicial() {
   const { pieChartData, totalSum } = useTransactionReport();
   const { nextRecurringTransactions } = useRecurringTransactions();
 
-  const { data: user }: UseQueryResult<User, Error> = useQuery({
+  const value = useQuery<User>({
     queryKey: ["getUser"],
     queryFn: getUser,
   });
@@ -28,11 +30,15 @@ export default function PaginaInicial() {
   return (
     <div className="w-full flex flex-col gap-10 justify-center">
       <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
-        <Card text={"Saldo Atual"} value={user?.salary} />
+        <Card text={"Saldo Atual"} value={value.data?.salary ?? 0} />
         <Card text={"Gasto Total"} value={totalSum} />
         <Card
           text={"Economia Mensal"}
-          value={user?.salary - totalSum > 0 ? user?.salary - totalSum : 0}
+          value={
+            (value.data?.salary ?? 0) - (totalSum ?? 0) > 0
+              ? (value.data?.salary ?? 0) - (totalSum ?? 0)
+              : 0
+          }
         />
       </div>
 
@@ -41,7 +47,7 @@ export default function PaginaInicial() {
           Gastos por Categorias Nesse Mês
         </h3>
         <div className="flex justify-end w-full max-h-[480px]">
-          <PieChart data={pieChartData} />
+          <PieChart data={pieChartData ?? { datasets: [] }} />
         </div>
       </section>
 
@@ -55,11 +61,11 @@ export default function PaginaInicial() {
                 key={key}
                 category={transaction.category}
                 date={new Date(
-                  transaction.transactionDate
+                  transaction.transactionDate,
                 ).toLocaleDateString()}
                 value={transaction.value}
               />
-            )
+            ),
           )}
         </div>
       </div>

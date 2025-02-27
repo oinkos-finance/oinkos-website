@@ -1,4 +1,5 @@
-'use client'
+"use client";
+
 import { formSchemaMyProfile, FormValues } from "@/schemas/formMyProfile";
 import getCookies from "@/server/cookies/getCookies";
 import getUser from "@/server/getUser/getUser";
@@ -7,24 +8,24 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-type User = {
-  username: string,
-  id: string,
-  salary: number,
-  email: string,
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  salary: number;
 }
 
 export default function EditarPerfil() {
-  const [error, setError] = useState<null | string>(null)
-  const [user, setUser] = useState<User | undefined>(undefined) //foi usado essa exibição dos dados por o componente ser client
+  const [error, setError] = useState<null | string>(null);
+  const [user, setUser] = useState<User | undefined>(undefined); //foi usado essa exibição dos dados por o componente ser client
   const [initialData, setInitialData] = useState<User | undefined>(undefined);
-  const [isSubmitSucessful, setIsSubmitSuccessful] = useState(false)
+  const [isSubmitSucessful, setIsSubmitSuccessful] = useState(false);
   const {
     handleSubmit,
     register,
     formState: { errors },
     setValue,
-    reset
+    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchemaMyProfile),
     defaultValues: {
@@ -35,15 +36,15 @@ export default function EditarPerfil() {
   });
 
   async function teste() {
-    const data = await getUser()
-    setUser(data)
-    setInitialData(data)
-    console.log(data)
+    const data = await getUser();
+    setUser(data);
+    setInitialData(data);
+    console.log(data);
   }
 
   useEffect(() => {
-    teste()
-  }, [])
+    teste();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -54,16 +55,15 @@ export default function EditarPerfil() {
   }, [user, setValue]);
 
   async function editInformation(data: FormValues) {
-    setIsSubmitSuccessful(false)
-    setError(null)
+    setIsSubmitSuccessful(false);
+    setError(null);
 
-    if (!initialData)
-      return
+    if (!initialData) return;
 
     const updatedFields = Object.fromEntries(
       Object.entries(data).filter(([key, value]) => {
-        return value !== initialData[key as keyof User] && value !== '';
-      })
+        return value !== initialData[key as keyof User] && value !== "";
+      }),
     );
 
     if (Object.keys(updatedFields).length === 0) {
@@ -71,39 +71,41 @@ export default function EditarPerfil() {
       return;
     }
 
-    const token = await getCookies()
+    const token = await getCookies();
     const options = {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        accept: 'application/json', 'content-type': 'application/json',
-        authorization: `Bearer ${token}`
+        accept: "application/json",
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updatedFields),
     };
 
     console.log("Enviando para a API:", options.body);
-    fetch('https://api.oinkos.samnsc.com/user', options)
-      .then(res => res.json().then(data => ({ status: res.status, data }))
-        .then(async res => {
-          console.log(res, 'teste')
+    fetch("https://api.oinkos.samnsc.com/user", options).then((res) =>
+      res
+        .json()
+        .then((data) => ({ status: res.status, data }))
+        .then(async (res) => {
+          console.log(res, "teste");
 
           if (res.status === 400)
-            setError('Sintaxe de resposta mal formatada.')
+            setError("Sintaxe de resposta mal formatada.");
           else if (res.status === 422)
-            setError('Valores inválidos. Verifique se a senha tem no mínimo 8 caracteres e se sua confirmação está correta.')
-          else if (res.status === 401)
-            setError('Erro interno no servidor.')
+            setError(
+              "Valores inválidos. Verifique se a senha tem no mínimo 8 caracteres e se sua confirmação está correta.",
+            );
+          else if (res.status === 401) setError("Erro interno no servidor.");
           else {
-            teste()
-            setIsSubmitSuccessful(true)
-            reset()
-            console.log("sucesso!")
+            teste();
+            setIsSubmitSuccessful(true);
+            reset();
+            console.log("sucesso!");
           }
-
         })
-        .catch(err => console.error(err)))
-
-
+        .catch((err) => console.error(err)),
+    );
   }
 
   return (
@@ -166,7 +168,6 @@ export default function EditarPerfil() {
           </div>
         </div>
 
-
         <div className="flex  w-full gap-6 md:gap-6 lg:gap-8 items-center justify-start ">
           <div className="flex flex-col gap-1 w-full md:w-1/2 lg:w-1/2  ">
             <label className="text-black text-start md:text-md text-lg pl-1">
@@ -178,16 +179,12 @@ export default function EditarPerfil() {
             />
           </div>
         </div>
-        {
-          error && <label className="text-red-500 mb-3 text-md">
-            {error}
-          </label>
-        }
-        {
-          isSubmitSucessful && <label className="text-green-700 mb-3 text-lg">
+        {error && <label className="text-red-500 mb-3 text-md">{error}</label>}
+        {isSubmitSucessful && (
+          <label className="text-green-700 mb-3 text-lg">
             Dados editados com sucesso!!
           </label>
-        }
+        )}
         <div className="flex flex-col md:flex-row gap-3 pt-10 md:pt-6 md:gap-6 lg:gap-8 w-full justify-center items-center">
           <button
             type="submit"

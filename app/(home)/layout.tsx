@@ -1,17 +1,18 @@
-import Sidebar from "@/components/sidebar/sidebar"
+import Sidebar from "@/components/sidebar/sidebar";
+
+export const dynamic = "force-dynamic";
 
 export default function AdminLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode;
 }) {
-    return(
-        <section className="w-full bg-[#E5E7E5] flex px-6 py-4 items-center min-h-screen">
-            <section className="w-full flex flex-col md:flex-row items-start gap-6 justify-between">
-                <Sidebar/>
-                {children}
-            </section>
-        </section>
-    )
+  return (
+    <section className="w-full bg-[#E5E7E5] flex px-6 py-4 items-center min-h-screen">
+      <section className="w-full flex flex-col md:flex-row items-start gap-6 justify-between">
+        <Sidebar />
+        {children}
+      </section>
+    </section>
+  );
 }
-

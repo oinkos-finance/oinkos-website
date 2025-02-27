@@ -22,8 +22,8 @@ interface FormProps {
 }
 
 export default function SeusGastosFixos() {
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitSucessful, setIsSubmitSuccessful] = useState<boolean>(false);
+  const [, setError] = useState<string | null>(null);
+  const [, setIsSubmitSuccessful] = useState<boolean>(false);
   const [teste] = useState<Transaction | null>();
   const [id, setId] = useState<string>("");
   const queryClient = useQueryClient();
@@ -54,8 +54,11 @@ export default function SeusGastosFixos() {
     startingDate,
     endingDate,
     setInitialData,
-    categories
-  } = useTransactionsPagination<RecurringTransaction>({queryName: "recurringTransactions", onlyInclude: "recurring"});
+    categories,
+  } = useTransactionsPagination<RecurringTransaction>({
+    queryName: "recurringTransactions",
+    onlyInclude: "recurring",
+  });
 
   const Modal = ({ children, onClose, title }: ModalProps) => (
     <div className="fixed inset-0 rounded-lg bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -223,7 +226,7 @@ export default function SeusGastosFixos() {
     const updatedFields = Object.fromEntries(
       Object.entries(formattedData).filter(([key, value]) => {
         return value !== initialData[key as keyof RecurringTransaction];
-      })
+      }),
     );
 
     if (Object.keys(updatedFields).length === 0) {
@@ -263,10 +266,10 @@ export default function SeusGastosFixos() {
               console.log("sucesso!");
             }
           })
-          .catch((err) => console.error(err))
+          .catch((err) => console.error(err)),
       )
       .finally(() =>
-        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] })
+        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
       );
   }
 
@@ -299,10 +302,10 @@ export default function SeusGastosFixos() {
               console.log("sucesso!");
             }
           })
-          .catch((err) => console.error(err))
+          .catch((err) => console.error(err)),
       )
       .finally(() =>
-        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] })
+        queryClient.invalidateQueries({ queryKey: ["recurringTransactions"] }),
       );
   }
 
@@ -312,7 +315,9 @@ export default function SeusGastosFixos() {
         <div className="mb-4">
           <input
             type="date"
-            onChange={({ target }) => setInitialData(new Date(target?.value + "T10:00:00.000Z"))} 
+            onChange={({ target }) =>
+              setInitialData(new Date(target?.value + "T10:00:00.000Z"))
+            }
             className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
           />
           <div className="mb-4 text-gray-700">
@@ -325,7 +330,9 @@ export default function SeusGastosFixos() {
             <select
               id="paymentType"
               className="w-full p-2 border rounded-xl bg-white text-gray-800 focus:outline-none "
-              onClick={(event: React.MouseEvent<HTMLSelectElement>) => setPeriod(Number(event.currentTarget.value))}
+              onClick={(event: React.MouseEvent<HTMLSelectElement>) =>
+                setPeriod(Number(event.currentTarget.value))
+              }
             >
               <option value={PeriodConstants.ONE_MONTH}>Um mês</option>
               <option value={PeriodConstants.ONE_WEEK}>Uma semana</option>
@@ -333,10 +340,23 @@ export default function SeusGastosFixos() {
             </select>
 
             <div className="flex items-center gap-10 mt-2 mb-2">
-              <button onClick={decrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">AVANÇAR</button>
-              <button onClick={incrementPage} className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2">VOLTAR</button>
+              <button
+                onClick={decrementPage}
+                className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2"
+              >
+                AVANÇAR
+              </button>
+              <button
+                onClick={incrementPage}
+                className="bg-gray-50 border-2 border-solid border-slate-500 rounded-md px-2"
+              >
+                VOLTAR
+              </button>
             </div>
-            <div>De {new Date(startingDate)?.toLocaleDateString()} até {new Date(endingDate)?.toLocaleDateString()}</div>
+            <div>
+              De {new Date(startingDate)?.toLocaleDateString()} até{" "}
+              {new Date(endingDate)?.toLocaleDateString()}
+            </div>
           </div>
         </div>
 
@@ -378,10 +398,13 @@ export default function SeusGastosFixos() {
                       </td>
                       <td className="p-4">
                         <span className="bg-gray-200 text-gray-800 py-1 px-3 rounded-full text-sm">
-                          {transaction.paymentType === 'directTransfer' ? 'Pix' : 
-                        transaction.paymentType === 'creditCard' ? 'Crédito' :
-                        transaction.paymentType === 'debitCard' ? 'Débito' :
-                        'Dinheiro'}
+                          {transaction.paymentType === "directTransfer"
+                            ? "Pix"
+                            : transaction.paymentType === "creditCard"
+                              ? "Crédito"
+                              : transaction.paymentType === "debitCard"
+                                ? "Débito"
+                                : "Dinheiro"}
                         </span>
                       </td>
                       <td className="text-gray-600 p-4">
@@ -413,7 +436,7 @@ export default function SeusGastosFixos() {
                         </div>
                       </td>
                     </tr>
-                  )
+                  ),
                 )}
               </tbody>
             </table>
