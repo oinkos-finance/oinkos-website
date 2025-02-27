@@ -46,14 +46,14 @@ export default function PaginaInicial() {
         <h3 className="text-gray-900 text-xl font-bold ">
           Gastos por Categorias Nesse Mês
         </h3>
-        <div className="flex justify-end w-full max-h-[480px]">
+        <div className="flex justify-end w-full">
           <PieChart data={pieChartData ?? { datasets: [] }} />
         </div>
       </section>
 
       <div className="text-gray-900">
         <h3 className="text-xl font-bold">Próximos Pagamentos</h3>
-        <div className="text-xl grid grid-cols-3 gap-[15px]">
+        <div className="text-xl flex flex-col md:flex-row flex-wrap gap-[15px]">
           {nextRecurringTransactions?.map(
             (transaction: RecurringTransaction, key: number) => (
               <TransactionCard

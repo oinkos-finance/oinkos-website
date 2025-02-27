@@ -311,7 +311,7 @@ export default function SeusGastosFixos() {
 
   return (
     <div className="min-h-screen bg-[#E5E7E5] md:pt-8 w-full overflow-hidden">
-      <div className="mb-4 flex flex-col md:flex-row justify-between items-center">
+      <div className="mb-4 flex flex-col lg:flex-row justify-between items-center">
         <div className="mb-4">
           <input
             type="date"
