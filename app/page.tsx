@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function Login() {
@@ -56,7 +56,7 @@ export default function Login() {
                 "Interno interno no servidor. Tente novamente mais tarde",
               );
             } else {
-              use(setCookies(res.data.token));
+              setCookies(res.data.token);
               router.push("/pagina_inicial");
             }
           }),

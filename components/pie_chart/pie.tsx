@@ -16,7 +16,7 @@ export default function PieChart({
 }) {
   return (
     <>
-      {data?.datasets[0].data.length ? (
+      {data?.datasets[0]?.data.length ? (
         <Pie
           height={360}
           options={{
