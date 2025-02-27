@@ -109,7 +109,7 @@ export const generateBarChartData = async ({ transactions, startingDate, endingD
   weeks?.forEach(({ week, transactions }) => {
 
     weekLabels.push(week.toLocaleDateString())
-    const recurringTransactions = transactions.filter(transaction => transaction.transactionType == "recurring")
+    const recurringTransactions = transactions.filter(transaction => transaction.transactionType == "recurring" && transaction.transactionStatus !== "skipped")
     const uniqueTransactions = transactions.filter(transaction => transaction.transactionType == "unique")
 
     const recurringTransactionsSum = recurringTransactions
@@ -149,11 +149,12 @@ export const generatePieChartData = async (transactions: Transaction[]): Promise
 
   const categories = new Map();
 
-  transactions?.forEach(({ category, value }: { category: string, value: number}) => {
-    if (categories.has(category)) {
-      const res = categories.get(category) + value;
-      categories.set(category, res);
-    } else categories.set(category, value);
+  transactions?.forEach(({ category, value, transactionStatus }: { category: string, value: number, transactionStatus: 'credited' | 'skipped' | undefined }) => {
+    if(transactionStatus !== "skipped")
+      if (categories.has(category)) {
+        const res = categories.get(category) + value;
+        categories.set(category, res);
+      } else categories.set(category, value);
   });
 
   const data: ChartData = {
@@ -182,6 +183,7 @@ export const generateLineChartData = async ({ transactions, startingDate, ending
     weekLabels.push(week.toLocaleDateString())
    
     const sum = transactions
+      .filter(transaction => transaction.transactionStatus !== "skipped")
       .reduce(
       (acc, transaction: Transaction) => acc + transaction.value, 0
     )
